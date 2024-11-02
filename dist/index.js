@@ -8,10 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const ApiKey = "90b1153e7229ea734ad261381557d7c0";
+window.addEventListener("load", () => {
+    fetchWeather();
+});
 function fetchWeather() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield fetch("https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m");
+            const response = yield fetch(`https://api.openweathermap.org/data/2.5/weather?q=årjäng&appid=${ApiKey}`);
             if (!response.ok) {
                 throw "Det här fungerar ju verkligen inte";
             }
@@ -22,8 +26,24 @@ function fetchWeather() {
             }
         }
         catch (error) {
-            console.log("Nu blev det fel!");
+            console.log("Nu blev det fel!", error);
         }
     });
 }
-fetchWeather();
+const barRef = document.querySelector(".bar");
+barRef.addEventListener("click", () => {
+    console.log("baren är klickad");
+});
+const searchRefBlack = document.querySelector(".magnifying-glass-black");
+const searchInputRef = document.querySelector(".search-input");
+const searchRefWhite = document.querySelector(".magnifying-glass-white");
+searchRefWhite === null || searchRefWhite === void 0 ? void 0 : searchRefWhite.addEventListener("click", () => {
+    searchRefBlack === null || searchRefBlack === void 0 ? void 0 : searchRefBlack.classList.remove("hide");
+    searchInputRef === null || searchInputRef === void 0 ? void 0 : searchInputRef.classList.remove("hide");
+    searchRefWhite.classList.add("hide");
+});
+searchRefBlack === null || searchRefBlack === void 0 ? void 0 : searchRefBlack.addEventListener("click", () => {
+    searchRefBlack === null || searchRefBlack === void 0 ? void 0 : searchRefBlack.classList.add("hide");
+    searchInputRef === null || searchInputRef === void 0 ? void 0 : searchInputRef.classList.add("hide");
+    searchRefWhite.classList.remove("hide");
+});
