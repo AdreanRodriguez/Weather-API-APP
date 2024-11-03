@@ -1,67 +1,42 @@
-var __awaiter =
-  (this && this.__awaiter) ||
-  function (thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P
-        ? value
-        : new P(function (resolve) {
-            resolve(value);
-          });
-    }
-    return new (P || (P = Promise))(function (resolve, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
-import { displayWeatherData } from "../displayWeatherData/displayWeatherData.js";
-import { weatherDataHandler } from "../weatherDataHandler/weatherDataHandler.js";
-const ApiKey = "90b1153e7229ea734ad261381557d7c0";
-let searchedCity;
-const inputRef1 = document.querySelector("#inputField1");
-inputRef1.addEventListener("input", () => {
-  searchedCity = inputRef1.value;
-});
-const inputRef2 = document.querySelector("#inputField2");
-inputRef2.addEventListener("input", () => {
-  searchedCity = inputRef2.value;
-});
-function fetchWeather(e) {
-  return __awaiter(this, void 0, void 0, function* () {
-    const searchedCityText = document.querySelector(".weather-location-name");
-    if (searchedCity) {
-      searchedCityText.textContent = `Can't find "${searchedCity}"`;
-    }
-    try {
-      const response = yield fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}`
-      );
-      if (!response.ok) {
-        throw "Det här fungerar ju verkligen inte";
-      } else {
-        const data = yield response.json();
-        weatherDataHandler(data);
-        displayWeatherData(e);
-        return data;
-      }
-    } catch (error) {
-      console.log("Nu blev det fel!", error);
-    }
-  });
-}
-export { fetchWeather };
+"use strict";
+// import { WeatherData } from "models/interfaces";
+// import { displayWeatherData } from "../displayWeatherData/displayWeatherData";
+// import { weatherDataHandler } from "../weatherDataHandler/weatherDataHandler";
+// const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
+// let weatherData: WeatherData | null;
+// let searchedCity: string = "";
+// async function fetchWeather(): Promise<void> {
+//   console.log("fetchWeather called");
+//   // e.preventDefault();
+//   const searchedCityText = document.querySelector(".weather-location-name") as HTMLParagraphElement;
+//   if (!searchedCity) {
+//     searchedCityText.textContent = "Please enter a city name";
+//     console.log("Inget sökord angivet");
+//     return;
+//   }
+//   try {
+//     console.log("Fetching weather data for:", searchedCity);
+//     const response: Response = await fetch(
+//       `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}`
+//     );
+//     if (!response.ok) {
+//       searchedCityText.textContent = `Can't find "${searchedCity}"`;
+//       console.log("API response not OK:", response.status, response.statusText);
+//       throw new Error("Det här fungerar ju verkligen inte");
+//     } else {
+//       const data = await response.json();
+//       console.log("Raw data from API: ", data);
+//       weatherData = weatherDataHandler(data);
+//       if (weatherData) {
+//         console.log("Processed weatherData:", weatherData);
+//         displayWeatherData();
+//       } else {
+//         searchedCityText.textContent = `No valid data found for "${searchedCity}"`;
+//         console.log("weatherDataHandler returned null or undefined");
+//       }
+//     }
+//   } catch (error) {
+//     console.log("Nu blev det fel!", error);
+//   }
+// }
+// export { fetchWeather };
