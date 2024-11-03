@@ -1,29 +1,26 @@
-const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
-const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
+import { WeatherData } from "models/interfaces";
 
 const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
 let weatherData: WeatherData | null;
 let searchedCity: string = "";
 
-if (!inputRef1) {
-  console.log("inputRef1 not found in DOM");
-} else {
-  console.log("inputRef1 found and event listener added for 'change' and 'keypress'");
-  inputRef1.addEventListener("change", () => {
-    console.log("inputRef1 change detected");
-    fetchWeather();
-  });
+// Funktion för att uppdatera searchedCity
+function updateCityInput(input: HTMLInputElement): void {
+  searchedCity = input.value;
+  console.log("Searched city updated:", searchedCity);
 }
+const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
+const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 
-if (!inputRef2) {
-  console.log("inputRef2 not found in DOM");
-}
+// Lägg till `input`-lyssnare för att uppdatera `searchedCity` vid textinmatning
+inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
+inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
 
-inputRef2.addEventListener("change", fetchWeather);
+inputRef2.addEventListener("change", (e) => fetchWeather(e));
 
 inputRef1.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
-    fetchWeather();
+    fetchWeather(e);
     displayWeatherData();
   }
 });
@@ -31,7 +28,7 @@ inputRef1.addEventListener("keypress", (e): void => {
 inputRef2.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
-    fetchWeather();
+    fetchWeather(e);
     displayWeatherData();
   }
 });
@@ -79,7 +76,7 @@ openMenu?.addEventListener("click", (): void => {
   document.querySelector(".menu-section")?.classList.add("show-menu");
 });
 
-function weatherDataHandler(data: WeatherData | null): WeatherData | null {
+function weatherDataHandler(data: WeatherData): WeatherData | null {
   if (!data) {
     console.log("NO DATA FOUND!!");
     return null; // Returnera `null` om datan saknas
@@ -90,9 +87,62 @@ function weatherDataHandler(data: WeatherData | null): WeatherData | null {
   return data;
 }
 
-async function fetchWeather(): Promise<void> {
-  console.log("fetchWeather called");
-  // e.preventDefault();
+function displayWeatherData(): void {
+  const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
+  const displayNameRef = document.querySelector(".display-weather__name") as HTMLElement;
+  const displayTempRef = document.querySelector(".display-weather__temp") as HTMLElement;
+  const displayHumidityRef = document.querySelector(
+    ".display-weather__humidity"
+  ) as HTMLParagraphElement;
+  const displayFeelsLikeRef = document.querySelector(
+    ".display-weather__feels-like"
+  ) as HTMLParagraphElement;
+  const displayDescriptionRef = document.querySelector(
+    ".display-weather__description"
+  ) as HTMLParagraphElement;
+  const displayWindSpeedRef = document.querySelector(
+    ".display-weather__wind-speed"
+  ) as HTMLParagraphElement;
+
+  if (
+    !displayNameRef ||
+    !displayTempRef ||
+    !displayHumidityRef ||
+    !displayFeelsLikeRef ||
+    !displayDescriptionRef ||
+    !displayWindSpeedRef
+  ) {
+    console.log("Något är fel med datan");
+    return;
+  }
+
+  if (!searchedCity) {
+    searchedLocation.textContent = "Please enter a city name";
+    console.log("Inget sökord angivet.");
+    return;
+  }
+
+  if (!weatherData) {
+    searchedLocation.textContent = `No result found for "${searchedCity}"`;
+    console.log("Ingen väderdata är tillgänglig just nu.");
+    return;
+  }
+  const roundedTemp = Math.floor(weatherData.main.temp);
+  const roundedFeelsLike = Math.floor(weatherData.main.feels_like);
+  const roundedWindSpeed = Math.floor(weatherData.wind.speed);
+
+  // Om allt är korrekt, visa väderdata
+  // searchedLocation.textContent = `${weatherData.name}: ${weatherData.main.temp}°C`;
+  displayNameRef.textContent = weatherData.name;
+  displayTempRef.textContent = `${roundedTemp}°C`;
+  displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
+  displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
+  displayDescriptionRef.textContent = `DESC ${weatherData.weather[0].description}`;
+  displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
+}
+
+async function fetchWeather(e: Event): Promise<void> {
+  e.preventDefault();
   const searchedCityText = document.querySelector(".weather-location-name") as HTMLParagraphElement;
 
   if (!searchedCity) {
@@ -104,7 +154,7 @@ async function fetchWeather(): Promise<void> {
   try {
     console.log("Fetching weather data for:", searchedCity);
     const response: Response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}`
+      `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`
     );
 
     if (!response.ok) {
@@ -128,35 +178,3 @@ async function fetchWeather(): Promise<void> {
     console.log("Nu blev det fel!", error);
   }
 }
-
-// Funktion för att uppdatera searchedCity
-function updateCityInput(input: HTMLInputElement): void {
-  searchedCity = input.value;
-  console.log("Searched city updated:", searchedCity);
-}
-
-// Lägg till `input`-lyssnare för att uppdatera `searchedCity` vid textinmatning
-inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
-inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
-
-function displayWeatherData(): void {
-  const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
-
-  if (!searchedCity) {
-    searchedLocation.textContent = "Please enter a city name";
-    console.log("Inget sökord angivet.");
-    return;
-  }
-
-  if (!weatherData) {
-    searchedLocation.textContent = `No result found for "${searchedCity}"`;
-    console.log("Ingen väderdata är tillgänglig just nu.");
-    return;
-  }
-
-  // Om allt är korrekt, visa väderdata
-  searchedLocation.textContent = `${weatherData.name}: ${weatherData.main.temp}°C`;
-  console.log("Tillgång till väderdata:", weatherData);
-}
-
-export { displayWeatherData };

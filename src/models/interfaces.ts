@@ -12,12 +12,12 @@ interface Main {
 }
 
 interface Weather {
-  icon: string;
   main: string;
   description: string;
 }
 
 interface Wind {
+  deg: number;
   speed: number;
 }
 

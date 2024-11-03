@@ -141,6 +141,55 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+.display-weather-container {
+  border: 1px solid whitesmoke;
+  height: 50vh;
+  /* display: flex;
+  flex-direction: column; */
+}
+
+.display-weather__name {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.display-weather__temp {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.display-weather__humidity {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.display-weather__feels-like {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.display-weather__description {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.display-weather__wind-speed {
+  font-size: 16px;
+  color: whitesmoke;
+  text-transform: uppercase;
+  font-family: "Courier New", Courier, monospace;
+}
+
 @keyframes slide {
   from {
     opacity: 0;
