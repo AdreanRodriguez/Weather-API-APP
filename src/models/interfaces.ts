@@ -1,20 +1,20 @@
 interface WeatherData {
-  name: string;
   main: Main;
-  description: Weather[];
   wind: Wind;
+  name: string;
+  weather: Weather[];
 }
 
 interface Main {
-  feels_like: number;
-  humidity: number;
   temp: number;
+  humidity: number;
+  feels_like: number;
 }
 
 interface Weather {
-  description: string;
   icon: string;
   main: string;
+  description: string;
 }
 
 interface Wind {

@@ -1,44 +1,11 @@
-import { WeatherData } from "./models/interfaces";
-
-const ApiKey = "";
-let weatherData: WeatherData;
-let searchedCity: string;
+import { fetchWeather } from "./functions/fetchWeatcher/fetchWeather";
+import { displayWeatherData } from "./functions/displayWeatherData/displayWeatherData";
 
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
-inputRef1.addEventListener("input", (): void => {
-  searchedCity = inputRef1.value;
-});
-
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
-inputRef2.addEventListener("input", (): void => {
-  searchedCity = inputRef2.value;
-});
 
-async function fetchWeather(): Promise<void> {
-  if (!searchedCity) {
-    console.log("Ingen stad är angiven.");
-    return;
-  }
-
-  try {
-    const response: Response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}`
-    );
-    if (!response.ok) {
-      throw "Det här fungerar ju verkligen inte";
-    } else {
-      const data = await response.json();
-      weatherData = data;
-      displayWeatherData();
-      return data;
-    }
-  } catch (error) {
-    console.log("Nu blev det fel!", error);
-  }
-}
-
-inputRef1.addEventListener("change", fetchWeather);
-inputRef2.addEventListener("change", fetchWeather);
+inputRef1.addEventListener("change", (e) => fetchWeather(e));
+inputRef2.addEventListener("change", (e) => fetchWeather(e));
 
 const barRef = document.querySelector(".bar") as HTMLDivElement;
 barRef.addEventListener("click", (): void => {});
@@ -72,32 +39,17 @@ searchRefBlack?.addEventListener("click", (): void => {
 
 inputRef1.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
-    displayWeatherData();
+    displayWeatherData(e);
   }
 });
 
 inputRef2.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
-    displayWeatherData();
+    fetchWeather(e);
+    displayWeatherData(e);
   }
 });
-
-// Skriv ut väder data här....
-function displayWeatherData(): void {
-  if (!weatherData) {
-    console.log("Ingen väderdata är tillgänglig just nu.");
-  } else {
-    const searchedLocation = document.querySelector(".weather-location-name");
-    if (searchedLocation) {
-      console.log("HÄR ÄR", weatherData.name);
-      searchedLocation.textContent = weatherData.name;
-    } else if (searchedLocation === null) {
-      return;
-    }
-    console.log("Tillgång till väderdata:", weatherData);
-  }
-}
 
 const closeMenu = document.querySelector(".menu-close") as HTMLParagraphElement;
 closeMenu?.addEventListener("click", (): void => {

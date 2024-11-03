@@ -59,9 +59,12 @@ body {
   max-width: 800px;
   position: relative;
   padding: 1rem 0.5rem;
+  height: 100vh;
 }
 
 .weather-location-name {
+  justify-self: center;
+  text-align: center;
   color: whitesmoke;
   font-family: "Courier New", Courier, monospace, sans-serif;
 }
