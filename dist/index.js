@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,18 +7,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const ApiKey = "90b1153e7229ea734ad261381557d7c0";
+const ApiKey = "";
 let weatherData;
 let searchedCity;
 const inputRef1 = document.querySelector("#inputField1");
 inputRef1.addEventListener("input", () => {
     searchedCity = inputRef1.value;
-    console.log("Skriver i inputfält 1:", searchedCity);
 });
 const inputRef2 = document.querySelector("#inputField2");
 inputRef2.addEventListener("input", () => {
     searchedCity = inputRef2.value;
-    console.log("Skriver i inputfält 2:", searchedCity);
 });
 function fetchWeather() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -34,8 +31,8 @@ function fetchWeather() {
             }
             else {
                 const data = yield response.json();
-                console.log(data);
                 weatherData = data;
+                displayWeatherData();
                 return data;
             }
         }
@@ -47,9 +44,7 @@ function fetchWeather() {
 inputRef1.addEventListener("change", fetchWeather);
 inputRef2.addEventListener("change", fetchWeather);
 const barRef = document.querySelector(".bar");
-barRef.addEventListener("click", () => {
-    console.log("baren är klickad");
-});
+barRef.addEventListener("click", () => { });
 const searchRefWhite = document.querySelector(".magnifying-glass-white");
 const searchRefBlack = document.querySelector(".magnifying-glass-black");
 function hideElements() {
@@ -75,22 +70,45 @@ searchRefBlack === null || searchRefBlack === void 0 ? void 0 : searchRefBlack.a
     (_d = document.querySelector("#inputField2")) === null || _d === void 0 ? void 0 : _d.classList.remove("hide");
     searchRefWhite.classList.remove("hide");
 });
-// inputRef1.addEventListener("keypress", (e): void => {
-//   if (e.key === "Enter") {
-//   }
-// });
+inputRef1.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        displayWeatherData();
+    }
+});
 inputRef2.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
         hideElements();
+        displayWeatherData();
     }
 });
 // Skriv ut väder data här....
-function displayWeatherInfo() {
+function displayWeatherData() {
     if (!weatherData) {
         console.log("Ingen väderdata är tillgänglig just nu.");
     }
     else {
+        const searchedLocation = document.querySelector(".weather-location-name");
+        if (searchedLocation) {
+            console.log("HÄR ÄR", weatherData.name);
+            searchedLocation.textContent = weatherData.name;
+        }
+        else if (searchedLocation === null) {
+            return;
+        }
         console.log("Tillgång till väderdata:", weatherData);
-        // Du kan också uppdatera fler element på sidan baserat på weatherData
     }
 }
+const closeMenu = document.querySelector(".menu-close");
+closeMenu === null || closeMenu === void 0 ? void 0 : closeMenu.addEventListener("click", () => {
+    var _a;
+    openMenu.style.height = "20px";
+    (_a = document.querySelector(".menu-section")) === null || _a === void 0 ? void 0 : _a.classList.add("hide-menu");
+});
+const openMenu = document.querySelector(".bar");
+openMenu === null || openMenu === void 0 ? void 0 : openMenu.addEventListener("click", () => {
+    var _a, _b;
+    openMenu.style.height = "10px";
+    (_a = document.querySelector(".menu-section")) === null || _a === void 0 ? void 0 : _a.classList.remove("hide-menu");
+    (_b = document.querySelector(".menu-section")) === null || _b === void 0 ? void 0 : _b.classList.add("show-menu");
+});
+export {};

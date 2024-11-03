@@ -1,18 +1,17 @@
-const ApiKey = "90b1153e7229ea734ad261381557d7c0";
+import { WeatherData } from "./models/interfaces";
 
-let weatherData: string;
+const ApiKey = "";
+let weatherData: WeatherData;
 let searchedCity: string;
 
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 inputRef1.addEventListener("input", (): void => {
   searchedCity = inputRef1.value;
-  console.log("Skriver i inputfält 1:", searchedCity);
 });
 
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 inputRef2.addEventListener("input", (): void => {
   searchedCity = inputRef2.value;
-  console.log("Skriver i inputfält 2:", searchedCity);
 });
 
 async function fetchWeather(): Promise<void> {
@@ -29,8 +28,8 @@ async function fetchWeather(): Promise<void> {
       throw "Det här fungerar ju verkligen inte";
     } else {
       const data = await response.json();
-      console.log(data);
       weatherData = data;
+      displayWeatherData();
       return data;
     }
   } catch (error) {
@@ -42,9 +41,7 @@ inputRef1.addEventListener("change", fetchWeather);
 inputRef2.addEventListener("change", fetchWeather);
 
 const barRef = document.querySelector(".bar") as HTMLDivElement;
-barRef.addEventListener("click", (): void => {
-  console.log("baren är klickad");
-});
+barRef.addEventListener("click", (): void => {});
 
 const searchRefWhite = document.querySelector(".magnifying-glass-white") as HTMLImageElement;
 const searchRefBlack = document.querySelector(".magnifying-glass-black") as HTMLImageElement;
@@ -73,23 +70,44 @@ searchRefBlack?.addEventListener("click", (): void => {
   searchRefWhite.classList.remove("hide");
 });
 
-// inputRef1.addEventListener("keypress", (e): void => {
-//   if (e.key === "Enter") {
-//   }
-// });
+inputRef1.addEventListener("keypress", (e): void => {
+  if (e.key === "Enter") {
+    displayWeatherData();
+  }
+});
 
 inputRef2.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
+    displayWeatherData();
   }
 });
 
 // Skriv ut väder data här....
-function displayWeatherInfo(): void {
+function displayWeatherData(): void {
   if (!weatherData) {
     console.log("Ingen väderdata är tillgänglig just nu.");
   } else {
+    const searchedLocation = document.querySelector(".weather-location-name");
+    if (searchedLocation) {
+      console.log("HÄR ÄR", weatherData.name);
+      searchedLocation.textContent = weatherData.name;
+    } else if (searchedLocation === null) {
+      return;
+    }
     console.log("Tillgång till väderdata:", weatherData);
-    // Du kan också uppdatera fler element på sidan baserat på weatherData
   }
 }
+
+const closeMenu = document.querySelector(".menu-close") as HTMLParagraphElement;
+closeMenu?.addEventListener("click", (): void => {
+  openMenu.style.height = "20px";
+  document.querySelector(".menu-section")?.classList.add("hide-menu");
+});
+
+const openMenu = document.querySelector(".bar") as HTMLElement;
+openMenu?.addEventListener("click", (): void => {
+  openMenu.style.height = "10px";
+  document.querySelector(".menu-section")?.classList.remove("hide-menu");
+  document.querySelector(".menu-section")?.classList.add("show-menu");
+});
