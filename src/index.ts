@@ -30,6 +30,7 @@ let searchedCity: string = "";
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
+
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 
@@ -42,7 +43,7 @@ inputRef1.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
     fetchWeather(e);
-    document.querySelector("#inputField1")?.classList.add("hide");
+    inputRef1.classList.add("hide");
     searchRefBlack?.classList.add("hide");
     searchRefWhite.classList.remove("hide");
   }
@@ -98,16 +99,6 @@ openMenu?.addEventListener("click", (): void => {
   document.querySelector(".menu-section")?.classList.add("show-menu");
 });
 
-// function weatherDataHandler(data: WeatherData): WeatherData | null {
-//   if (!data) {
-//     console.log("NO DATA FOUND!!");
-//     return null; // Returnera `null` om datan saknas
-//   }
-
-//   // Returnera bearbetad eller validerad `WeatherData`
-//   return data;
-// }
-
 function displayWeatherData(): void {
   const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
   const displayNameRef = document.querySelector(".display-weather__name") as HTMLElement;
@@ -151,6 +142,18 @@ function displayWeatherData(): void {
     return;
   }
 
+  const savedFavorites = localStorage.getItem("savedWeatherData");
+  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+
+  // Skapa stjärn-ikonen med `makeStar`
+  const starImg: HTMLImageElement = makeStar(isFavorite, () => {
+    toggleFavorite(weatherData);
+    // Uppdatera `isFilled` baserat på om staden är favorit
+    starImg.src = isFavorite ? "../dist/assets/star.svg" : "../dist/assets/starFilled.svg";
+    displayDataInMenu(); // Uppdatera menyn
+  });
+
   if (!weatherData) {
     searchedLocation.textContent = `No result found for "${searchedCity}"`;
     console.log("Ingen väderdata är tillgänglig just nu.");
@@ -173,7 +176,7 @@ function displayWeatherData(): void {
     displayDescriptionRef.textContent = `${weatherData.weather[0].description}`;
     displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
 
-    let isFilled = false;
+    let isFilled: boolean = false;
 
     starImg.addEventListener("click", (): void => {
       const savedWeatherData = localStorage.getItem("savedWeatherData");
@@ -184,8 +187,8 @@ function displayWeatherData(): void {
         weatherArray = weatherArray.filter((data) => data.name !== weatherData.name);
       } else {
         starImg.src = "../dist/assets/starFilled.svg";
-        const exists = weatherArray.some((data) => data.name === weatherData.name) as Boolean;
-        if (!exists) {
+        const isExisting = weatherArray.some((data) => data.name === weatherData.name) as Boolean;
+        if (!isExisting) {
           weatherArray.push(weatherData);
         }
       }
@@ -198,25 +201,62 @@ function displayWeatherData(): void {
   }
 }
 
+function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
+  const starImg = document.createElement("img") as HTMLImageElement;
+  starImg.src = isFilled ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
+  starImg.alt = "Star image";
+  starImg.classList.add("star");
+
+  starImg.addEventListener("click", () => {
+    onClick();
+    starImg.src = starImg.src.includes("starFilled.svg")
+      ? "../dist/assets/star.svg"
+      : "../dist/assets/starFilled.svg";
+  });
+
+  return starImg;
+}
+
 function displayDataInMenu(): void {
   const menuArticle = document.querySelector(".weather-article") as HTMLElement;
+  menuArticle.innerHTML = ""; // Rensa menyn
 
-  menuArticle.innerHTML = "";
+  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
 
-  const savedWeatherDataFromLocalStorage = localStorage.getItem("savedWeatherData");
-  if (savedWeatherDataFromLocalStorage) {
-    const weatherArray: WeatherData[] = JSON.parse(savedWeatherDataFromLocalStorage);
+  weatherArray.forEach((savedData) => {
+    const locationDiv = document.createElement("div");
+    locationDiv.classList.add("saved-location");
 
-    weatherArray.forEach((savedData) => {
-      const locationDiv = document.createElement("div");
-      locationDiv.classList.add("saved-location");
-      locationDiv.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${
-        savedData.weather[0].description
-      }`;
-      menuArticle.appendChild(locationDiv);
+    // Lägg till stadens namn
+    const cityText = document.createElement("span");
+    cityText.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${
+      savedData.weather[0].description
+    }`;
+    locationDiv.appendChild(cityText);
+
+    const starImg = makeStar(true, () => {
+      toggleFavorite(savedData);
+      displayDataInMenu();
     });
-    console.log("weatherARRAY", weatherArray);
+
+    locationDiv.appendChild(starImg);
+    menuArticle.appendChild(locationDiv);
+  });
+}
+
+function toggleFavorite(cityData: WeatherData): void {
+  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+  let weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+
+  // Om staden redan är favorit, ta bort den, annars lägg till den
+  if (weatherArray.some((data) => data.name === cityData.name)) {
+    weatherArray = weatherArray.filter((data) => data.name !== cityData.name);
+  } else {
+    weatherArray.push(cityData);
   }
+
+  localStorage.setItem("savedWeatherData", JSON.stringify(weatherArray));
 }
 
 async function fetchWeather(e: Event): Promise<void> {
@@ -237,6 +277,7 @@ async function fetchWeather(e: Event): Promise<void> {
       searchedCityText.textContent = `Can't find "${searchedCity}"`;
       throw new Error("Det här fungerar ju verkligen inte");
     } else {
+      searchedCityText.textContent = "";
       const data = await response.json();
 
       // weatherData = weatherDataHandler(data);

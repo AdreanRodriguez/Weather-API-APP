@@ -58,6 +58,8 @@ body {
 
 .saved-location {
   padding: 10px;
+  display: flex;
+  justify-content: space-between;
   border-bottom: 1px solid #ccc;
 }
 
@@ -106,10 +108,6 @@ body {
 
 .lower-search-input {
   margin-top: -3rem;
-}
-
-.hide {
-  display: none;
 }
 
 .magnifying-glass-white {
@@ -217,6 +215,10 @@ body {
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
+}
+
+.hide {
+  display: none;
 }
 
 @keyframes slide {

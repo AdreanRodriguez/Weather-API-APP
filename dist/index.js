@@ -21,11 +21,10 @@ inputRef1 === null || inputRef1 === void 0 ? void 0 : inputRef1.addEventListener
 inputRef2 === null || inputRef2 === void 0 ? void 0 : inputRef2.addEventListener("input", () => updateCityInput(inputRef2));
 inputRef2.addEventListener("change", (e) => fetchWeather(e));
 inputRef1.addEventListener("keypress", (e) => {
-    var _a;
     if (e.key === "Enter") {
         hideElements();
         fetchWeather(e);
-        (_a = document.querySelector("#inputField1")) === null || _a === void 0 ? void 0 : _a.classList.add("hide");
+        inputRef1.classList.add("hide");
         searchRefBlack === null || searchRefBlack === void 0 ? void 0 : searchRefBlack.classList.add("hide");
         searchRefWhite.classList.remove("hide");
     }
@@ -76,14 +75,6 @@ openMenu === null || openMenu === void 0 ? void 0 : openMenu.addEventListener("c
     (_a = document.querySelector(".menu-section")) === null || _a === void 0 ? void 0 : _a.classList.remove("hide-menu");
     (_b = document.querySelector(".menu-section")) === null || _b === void 0 ? void 0 : _b.classList.add("show-menu");
 });
-// function weatherDataHandler(data: WeatherData): WeatherData | null {
-//   if (!data) {
-//     console.log("NO DATA FOUND!!");
-//     return null; // Returnera `null` om datan saknas
-//   }
-//   // Returnera bearbetad eller validerad `WeatherData`
-//   return data;
-// }
 function displayWeatherData() {
     const searchedLocation = document.querySelector(".weather-location-name");
     const displayNameRef = document.querySelector(".display-weather__name");
@@ -112,6 +103,16 @@ function displayWeatherData() {
         console.log("Inget sökord angivet.");
         return;
     }
+    const savedFavorites = localStorage.getItem("savedWeatherData");
+    const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+    const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+    // Skapa stjärn-ikonen med `makeStar`
+    const starImg = makeStar(isFavorite, () => {
+        toggleFavorite(weatherData);
+        // Uppdatera `isFilled` baserat på om staden är favorit
+        starImg.src = isFavorite ? "../dist/assets/star.svg" : "../dist/assets/starFilled.svg";
+        displayDataInMenu(); // Uppdatera menyn
+    });
     if (!weatherData) {
         searchedLocation.textContent = `No result found for "${searchedCity}"`;
         console.log("Ingen väderdata är tillgänglig just nu.");
@@ -142,8 +143,8 @@ function displayWeatherData() {
             }
             else {
                 starImg.src = "../dist/assets/starFilled.svg";
-                const exists = weatherArray.some((data) => data.name === weatherData.name);
-                if (!exists) {
+                const isExisting = weatherArray.some((data) => data.name === weatherData.name);
+                if (!isExisting) {
                     weatherArray.push(weatherData);
                 }
             }
@@ -153,20 +154,50 @@ function displayWeatherData() {
         });
     }
 }
+function makeStar(isFilled, onClick) {
+    const starImg = document.createElement("img");
+    starImg.src = isFilled ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
+    starImg.alt = "Star image";
+    starImg.classList.add("star");
+    starImg.addEventListener("click", () => {
+        onClick();
+        starImg.src = starImg.src.includes("starFilled.svg")
+            ? "../dist/assets/star.svg"
+            : "../dist/assets/starFilled.svg";
+    });
+    return starImg;
+}
 function displayDataInMenu() {
     const menuArticle = document.querySelector(".weather-article");
-    menuArticle.innerHTML = "";
-    const savedWeatherDataFromLocalStorage = localStorage.getItem("savedWeatherData");
-    if (savedWeatherDataFromLocalStorage) {
-        const weatherArray = JSON.parse(savedWeatherDataFromLocalStorage);
-        weatherArray.forEach((savedData) => {
-            const locationDiv = document.createElement("div");
-            locationDiv.classList.add("saved-location");
-            locationDiv.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${savedData.weather[0].description}`;
-            menuArticle.appendChild(locationDiv);
+    menuArticle.innerHTML = ""; // Rensa menyn
+    const savedFavorites = localStorage.getItem("savedWeatherData");
+    const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+    weatherArray.forEach((savedData) => {
+        const locationDiv = document.createElement("div");
+        locationDiv.classList.add("saved-location");
+        // Lägg till stadens namn
+        const cityText = document.createElement("span");
+        cityText.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${savedData.weather[0].description}`;
+        locationDiv.appendChild(cityText);
+        const starImg = makeStar(true, () => {
+            toggleFavorite(savedData);
+            displayDataInMenu();
         });
-        console.log("weatherARRAY", weatherArray);
+        locationDiv.appendChild(starImg);
+        menuArticle.appendChild(locationDiv);
+    });
+}
+function toggleFavorite(cityData) {
+    const savedFavorites = localStorage.getItem("savedWeatherData");
+    let weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+    // Om staden redan är favorit, ta bort den, annars lägg till den
+    if (weatherArray.some((data) => data.name === cityData.name)) {
+        weatherArray = weatherArray.filter((data) => data.name !== cityData.name);
     }
+    else {
+        weatherArray.push(cityData);
+    }
+    localStorage.setItem("savedWeatherData", JSON.stringify(weatherArray));
 }
 function fetchWeather(e) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -183,6 +214,7 @@ function fetchWeather(e) {
                 throw new Error("Det här fungerar ju verkligen inte");
             }
             else {
+                searchedCityText.textContent = "";
                 const data = yield response.json();
                 // weatherData = weatherDataHandler(data);
                 weatherData = data;
