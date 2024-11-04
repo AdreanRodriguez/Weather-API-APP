@@ -49,9 +49,16 @@ body {
 }
 
 .weather-article {
+  color: whitesmoke;
+  font-family: sans-serif;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.saved-location {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
 }
 
 .wrapper {
@@ -75,6 +82,10 @@ body {
   display: grid;
   align-items: center;
   grid-template-columns: 25px 1fr;
+}
+
+.weather-location-name {
+  margin-top: 1rem;
 }
 
 .bar {
@@ -142,21 +153,39 @@ body {
 }
 
 .display-weather-container {
-  border: 1px solid whitesmoke;
-  height: 50vh;
-  /* display: flex;
-  flex-direction: column; */
+  margin-top: 2rem;
+  /* border: 1px solid whitesmoke; */
+  /* height: 50vh; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  /* display: grid;
+  grid-template-columns: 50% 1fr;
+  grid-template-rows: 100px;
+  justify-items: center; */
+}
+
+.star {
+  width: 25px;
+  height: 25px;
+  margin-left: 1rem;
+}
+
+.display-weather-wrapper__name-and-star {
+  display: flex;
 }
 
 .display-weather__name {
-  font-size: 16px;
+  font-size: 26px;
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
 }
 
 .display-weather__temp {
-  font-size: 16px;
+  font-size: 36px;
+  font-weight: 600;
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;

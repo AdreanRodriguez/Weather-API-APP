@@ -1,18 +1,38 @@
-import { WeatherData } from "models/interfaces";
+// Glöm inte lägga in i interfaces
+interface WeatherData {
+  main: Main;
+  wind: Wind;
+  name: string;
+  weather: Weather[];
+}
+
+interface Main {
+  temp: number;
+  humidity: number;
+  feels_like: number;
+}
+
+interface Weather {
+  main: string;
+  description: string;
+}
+
+interface Wind {
+  deg: number;
+  speed: number;
+}
 
 const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
-let weatherData: WeatherData | null;
+let weatherData: WeatherData;
 let searchedCity: string = "";
 
 // Funktion för att uppdatera searchedCity
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
-  console.log("Searched city updated:", searchedCity);
 }
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 
-// Lägg till `input`-lyssnare för att uppdatera `searchedCity` vid textinmatning
 inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
 inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
 
@@ -20,8 +40,11 @@ inputRef2.addEventListener("change", (e) => fetchWeather(e));
 
 inputRef1.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
+    hideElements();
     fetchWeather(e);
-    displayWeatherData();
+    document.querySelector("#inputField1")?.classList.add("hide");
+    searchRefBlack?.classList.add("hide");
+    searchRefWhite.classList.remove("hide");
   }
 });
 
@@ -29,7 +52,6 @@ inputRef2.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
     fetchWeather(e);
-    displayWeatherData();
   }
 });
 
@@ -76,16 +98,15 @@ openMenu?.addEventListener("click", (): void => {
   document.querySelector(".menu-section")?.classList.add("show-menu");
 });
 
-function weatherDataHandler(data: WeatherData): WeatherData | null {
-  if (!data) {
-    console.log("NO DATA FOUND!!");
-    return null; // Returnera `null` om datan saknas
-  }
-  // Lägg till eventuell bearbetning eller validering av `data` här
-  console.log("DATA FOUND!!", data);
-  // Returnera bearbetad eller validerad `WeatherData`
-  return data;
-}
+// function weatherDataHandler(data: WeatherData): WeatherData | null {
+//   if (!data) {
+//     console.log("NO DATA FOUND!!");
+//     return null; // Returnera `null` om datan saknas
+//   }
+
+//   // Returnera bearbetad eller validerad `WeatherData`
+//   return data;
+// }
 
 function displayWeatherData(): void {
   const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
@@ -103,17 +124,25 @@ function displayWeatherData(): void {
   const displayWindSpeedRef = document.querySelector(
     ".display-weather__wind-speed"
   ) as HTMLParagraphElement;
-
+  const divWrapper = document.querySelector(
+    ".display-weather-wrapper__name-and-star"
+  ) as HTMLDivElement;
   if (
     !displayNameRef ||
     !displayTempRef ||
     !displayHumidityRef ||
     !displayFeelsLikeRef ||
     !displayDescriptionRef ||
-    !displayWindSpeedRef
+    !displayWindSpeedRef ||
+    !divWrapper
   ) {
     console.log("Något är fel med datan");
     return;
+  }
+
+  const starExist = divWrapper.querySelector(".star");
+  if (starExist) {
+    starExist.remove();
   }
 
   if (!searchedCity) {
@@ -126,19 +155,68 @@ function displayWeatherData(): void {
     searchedLocation.textContent = `No result found for "${searchedCity}"`;
     console.log("Ingen väderdata är tillgänglig just nu.");
     return;
-  }
-  const roundedTemp = Math.floor(weatherData.main.temp);
-  const roundedFeelsLike = Math.floor(weatherData.main.feels_like);
-  const roundedWindSpeed = Math.floor(weatherData.wind.speed);
+  } else {
+    const roundedTemp = Math.floor(weatherData.main.temp);
+    const roundedFeelsLike = Math.floor(weatherData.main.feels_like);
+    const roundedWindSpeed = Math.floor(weatherData.wind.speed);
 
-  // Om allt är korrekt, visa väderdata
-  // searchedLocation.textContent = `${weatherData.name}: ${weatherData.main.temp}°C`;
-  displayNameRef.textContent = weatherData.name;
-  displayTempRef.textContent = `${roundedTemp}°C`;
-  displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
-  displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
-  displayDescriptionRef.textContent = `DESC ${weatherData.weather[0].description}`;
-  displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
+    const starImg = document.createElement("img") as HTMLImageElement;
+    starImg.src = "../dist/assets/star.svg";
+    starImg.alt = "Star image";
+    starImg.classList.add("star");
+
+    divWrapper.append(starImg);
+    displayNameRef.textContent = weatherData.name;
+    displayTempRef.textContent = `${roundedTemp}°C`;
+    displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
+    displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
+    displayDescriptionRef.textContent = `${weatherData.weather[0].description}`;
+    displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
+
+    let isFilled = false;
+
+    starImg.addEventListener("click", (): void => {
+      const savedWeatherData = localStorage.getItem("savedWeatherData");
+      let weatherArray: WeatherData[] = savedWeatherData ? JSON.parse(savedWeatherData) : [];
+
+      if (isFilled) {
+        starImg.src = "../dist/assets/star.svg";
+        weatherArray = weatherArray.filter((data) => data.name !== weatherData.name);
+      } else {
+        starImg.src = "../dist/assets/starFilled.svg";
+        const exists = weatherArray.some((data) => data.name === weatherData.name) as Boolean;
+        if (!exists) {
+          weatherArray.push(weatherData);
+        }
+      }
+
+      localStorage.setItem("savedWeatherData", JSON.stringify(weatherArray));
+
+      isFilled = !isFilled;
+      displayDataInMenu();
+    });
+  }
+}
+
+function displayDataInMenu(): void {
+  const menuArticle = document.querySelector(".weather-article") as HTMLElement;
+
+  menuArticle.innerHTML = "";
+
+  const savedWeatherDataFromLocalStorage = localStorage.getItem("savedWeatherData");
+  if (savedWeatherDataFromLocalStorage) {
+    const weatherArray: WeatherData[] = JSON.parse(savedWeatherDataFromLocalStorage);
+
+    weatherArray.forEach((savedData) => {
+      const locationDiv = document.createElement("div");
+      locationDiv.classList.add("saved-location");
+      locationDiv.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${
+        savedData.weather[0].description
+      }`;
+      menuArticle.appendChild(locationDiv);
+    });
+    console.log("weatherARRAY", weatherArray);
+  }
 }
 
 async function fetchWeather(e: Event): Promise<void> {
@@ -147,27 +225,23 @@ async function fetchWeather(e: Event): Promise<void> {
 
   if (!searchedCity) {
     searchedCityText.textContent = "Please enter a city name";
-    console.log("Inget sökord angivet");
     return;
   }
 
   try {
-    console.log("Fetching weather data for:", searchedCity);
     const response: Response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`
     );
 
     if (!response.ok) {
       searchedCityText.textContent = `Can't find "${searchedCity}"`;
-      console.log("API response not OK:", response.status, response.statusText);
       throw new Error("Det här fungerar ju verkligen inte");
     } else {
       const data = await response.json();
-      console.log("Raw data from API: ", data);
 
-      weatherData = weatherDataHandler(data);
+      // weatherData = weatherDataHandler(data);
+      weatherData = data;
       if (weatherData) {
-        console.log("Processed weatherData:", weatherData);
         displayWeatherData();
       } else {
         searchedCityText.textContent = `No valid data found for "${searchedCity}"`;
