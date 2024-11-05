@@ -97,7 +97,11 @@ openMenu?.addEventListener("click", (): void => {
   document.querySelector(".menu-section")?.classList.add("show-menu");
 });
 
+const tempContainerRef = document.querySelector(".temp-container") as HTMLElement;
+tempContainerRef.classList.add("hide");
+
 function displayWeatherData(): void {
+  tempContainerRef.classList.remove("hide");
   const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
   const displayNameRef = document.querySelector(".display-weather__name") as HTMLElement;
   const displayTempRef = document.querySelector(".display-weather__temp") as HTMLElement;
@@ -307,7 +311,6 @@ function toggleFavorite(cityData: WeatherData): void {
 async function fetchWeather(e: Event): Promise<void> {
   e.preventDefault();
   const searchedCityText = document.querySelector(".weather-location-name") as HTMLParagraphElement;
-
   if (!searchedCity) {
     searchedCityText.textContent = "Please enter a city name";
     return;

@@ -75,8 +75,11 @@ openMenu === null || openMenu === void 0 ? void 0 : openMenu.addEventListener("c
     (_a = document.querySelector(".menu-section")) === null || _a === void 0 ? void 0 : _a.classList.remove("hide-menu");
     (_b = document.querySelector(".menu-section")) === null || _b === void 0 ? void 0 : _b.classList.add("show-menu");
 });
+const tempContainerRef = document.querySelector(".temp-container");
+tempContainerRef.classList.add("hide");
 function displayWeatherData() {
     var _a, _b;
+    tempContainerRef.classList.remove("hide");
     const searchedLocation = document.querySelector(".weather-location-name");
     const displayNameRef = document.querySelector(".display-weather__name");
     const displayTempRef = document.querySelector(".display-weather__temp");
