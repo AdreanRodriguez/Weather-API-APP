@@ -76,21 +76,22 @@ openMenu === null || openMenu === void 0 ? void 0 : openMenu.addEventListener("c
     (_b = document.querySelector(".menu-section")) === null || _b === void 0 ? void 0 : _b.classList.add("show-menu");
 });
 function displayWeatherData() {
+    var _a, _b;
     const searchedLocation = document.querySelector(".weather-location-name");
     const displayNameRef = document.querySelector(".display-weather__name");
     const displayTempRef = document.querySelector(".display-weather__temp");
     const displayHumidityRef = document.querySelector(".display-weather__humidity");
     const displayFeelsLikeRef = document.querySelector(".display-weather__feels-like");
-    const displayDescriptionRef = document.querySelector(".display-weather__description");
     const displayWindSpeedRef = document.querySelector(".display-weather__wind-speed");
     const divWrapper = document.querySelector(".display-weather-wrapper__name-and-star");
+    const humidityImg = document.querySelector(".humidity-image");
     if (!displayNameRef ||
         !displayTempRef ||
         !displayHumidityRef ||
         !displayFeelsLikeRef ||
-        !displayDescriptionRef ||
         !displayWindSpeedRef ||
-        !divWrapper) {
+        !divWrapper ||
+        !humidityImg) {
         console.log("Något är fel med datan");
         return;
     }
@@ -100,25 +101,43 @@ function displayWeatherData() {
     }
     if (!searchedCity) {
         searchedLocation.textContent = "Please enter a city name";
-        console.log("Inget sökord angivet.");
         return;
     }
     const savedFavorites = localStorage.getItem("savedWeatherData");
     const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
     const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
-    // Skapa stjärn-ikonen med `makeStar`
     const starImg = makeStar(isFavorite, () => {
         toggleFavorite(weatherData);
-        // Uppdatera `isFilled` baserat på om staden är favorit
-        starImg.src = isFavorite ? "../dist/assets/star.svg" : "../dist/assets/starFilled.svg";
-        displayDataInMenu(); // Uppdatera menyn
+        if (!isFavorite) {
+            starImg.src = "../dist/assets/star.svg";
+        }
+        else {
+            starImg.src = "../dist/assets/starFilled.svg";
+            displayDataInMenu();
+        }
     });
+    function checkWeatherImage() {
+        const weatherImage = document.createElement("img");
+        const iconCode = weatherData.weather[0].icon;
+        weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+        weatherImage.alt = "Weather image";
+        weatherImage.classList.add("weather-image");
+        const weatherContainer = document.querySelector(".display-weather-container");
+        const tempContainer = document.querySelector(".temp-container");
+        if (weatherContainer && tempContainer) {
+            const existingImage = weatherContainer.querySelector(".weather-image");
+            if (existingImage) {
+                existingImage.remove();
+            }
+            weatherContainer.insertBefore(weatherImage, tempContainer);
+        }
+    }
     if (!weatherData) {
         searchedLocation.textContent = `No result found for "${searchedCity}"`;
-        console.log("Ingen väderdata är tillgänglig just nu.");
         return;
     }
     else {
+        checkWeatherImage();
         const roundedTemp = Math.floor(weatherData.main.temp);
         const roundedFeelsLike = Math.floor(weatherData.main.feels_like);
         const roundedWindSpeed = Math.floor(weatherData.wind.speed);
@@ -126,13 +145,14 @@ function displayWeatherData() {
         starImg.src = "../dist/assets/star.svg";
         starImg.alt = "Star image";
         starImg.classList.add("star");
+        (_a = document.querySelector(".humidity-image")) === null || _a === void 0 ? void 0 : _a.classList.remove("hide");
+        (_b = document.querySelector(".wind-image")) === null || _b === void 0 ? void 0 : _b.classList.remove("hide");
         divWrapper.append(starImg);
         displayNameRef.textContent = weatherData.name;
         displayTempRef.textContent = `${roundedTemp}°C`;
-        displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
+        displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}`;
         displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
-        displayDescriptionRef.textContent = `${weatherData.weather[0].description}`;
-        displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
+        displayWindSpeedRef.textContent = `Wind ${roundedWindSpeed} km/h`;
         let isFilled = false;
         starImg.addEventListener("click", () => {
             const savedWeatherData = localStorage.getItem("savedWeatherData");
@@ -154,30 +174,56 @@ function displayWeatherData() {
         });
     }
 }
+function updateStarIcon() {
+    const divWrapper = document.querySelector(".display-weather-wrapper__name-and-star");
+    const starImg = divWrapper.querySelector(".star");
+    if (!weatherData || !starImg)
+        return; // Kontrollera att data och element finns
+    const savedFavorites = localStorage.getItem("savedWeatherData");
+    const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+    const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+    if (isFavorite) {
+        starImg.src = "../dist/assets/starFilled.svg";
+    }
+    else {
+        starImg.src = "../dist/assets/star.svg";
+    }
+}
 function makeStar(isFilled, onClick) {
     const starImg = document.createElement("img");
-    starImg.src = isFilled ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
-    starImg.alt = "Star image";
-    starImg.classList.add("star");
+    if (isFilled) {
+        starImg.src = "../dist/assets/starFilled.svg";
+        starImg.alt = "Star image";
+        starImg.classList.add("star");
+    }
+    else {
+        starImg.src = "../dist/assets/star.svg";
+        starImg.alt = "Star image";
+        starImg.classList.add("star");
+    }
     starImg.addEventListener("click", () => {
         onClick();
-        starImg.src = starImg.src.includes("starFilled.svg")
-            ? "../dist/assets/star.svg"
-            : "../dist/assets/starFilled.svg";
+        if (starImg.src.includes("starFilled.svg")) {
+            starImg.src = "../dist/assets/star.svg";
+            console.log("vanlig stjärna");
+        }
+        else {
+            starImg.src = "../dist/assets/starFilled.svg";
+            console.log("fylld stjärna");
+        }
     });
     return starImg;
 }
 function displayDataInMenu() {
     const menuArticle = document.querySelector(".weather-article");
-    menuArticle.innerHTML = ""; // Rensa menyn
+    menuArticle.innerHTML = "";
     const savedFavorites = localStorage.getItem("savedWeatherData");
     const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
     weatherArray.forEach((savedData) => {
         const locationDiv = document.createElement("div");
         locationDiv.classList.add("saved-location");
-        // Lägg till stadens namn
         const cityText = document.createElement("span");
-        cityText.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${savedData.weather[0].description}`;
+        cityText.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
         locationDiv.appendChild(cityText);
         const starImg = makeStar(true, () => {
             toggleFavorite(savedData);
@@ -190,7 +236,6 @@ function displayDataInMenu() {
 function toggleFavorite(cityData) {
     const savedFavorites = localStorage.getItem("savedWeatherData");
     let weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
-    // Om staden redan är favorit, ta bort den, annars lägg till den
     if (weatherArray.some((data) => data.name === cityData.name)) {
         weatherArray = weatherArray.filter((data) => data.name !== cityData.name);
     }
@@ -198,9 +243,11 @@ function toggleFavorite(cityData) {
         weatherArray.push(cityData);
     }
     localStorage.setItem("savedWeatherData", JSON.stringify(weatherArray));
+    updateStarIcon();
 }
 function fetchWeather(e) {
     return __awaiter(this, void 0, void 0, function* () {
+        var _a;
         e.preventDefault();
         const searchedCityText = document.querySelector(".weather-location-name");
         if (!searchedCity) {
@@ -211,19 +258,20 @@ function fetchWeather(e) {
             const response = yield fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`);
             if (!response.ok) {
                 searchedCityText.textContent = `Can't find "${searchedCity}"`;
+                (_a = document.querySelector(".display-weather-container")) === null || _a === void 0 ? void 0 : _a.classList.add("hide");
                 throw new Error("Det här fungerar ju verkligen inte");
             }
             else {
                 searchedCityText.textContent = "";
                 const data = yield response.json();
-                // weatherData = weatherDataHandler(data);
                 weatherData = data;
+                console.log(weatherData);
                 if (weatherData) {
                     displayWeatherData();
+                    updateStarIcon();
                 }
                 else {
                     searchedCityText.textContent = `No valid data found for "${searchedCity}"`;
-                    console.log("weatherDataHandler returned null or undefined");
                 }
             }
         }

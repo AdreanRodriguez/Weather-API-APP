@@ -14,7 +14,7 @@ interface Main {
 
 interface Weather {
   main: string;
-  description: string;
+  icon: string;
 }
 
 interface Wind {
@@ -30,7 +30,6 @@ let searchedCity: string = "";
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
-
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 
@@ -38,7 +37,6 @@ inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
 inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
 
 inputRef2.addEventListener("change", (e) => fetchWeather(e));
-
 inputRef1.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
@@ -109,23 +107,21 @@ function displayWeatherData(): void {
   const displayFeelsLikeRef = document.querySelector(
     ".display-weather__feels-like"
   ) as HTMLParagraphElement;
-  const displayDescriptionRef = document.querySelector(
-    ".display-weather__description"
-  ) as HTMLParagraphElement;
   const displayWindSpeedRef = document.querySelector(
     ".display-weather__wind-speed"
   ) as HTMLParagraphElement;
   const divWrapper = document.querySelector(
     ".display-weather-wrapper__name-and-star"
   ) as HTMLDivElement;
+  const humidityImg = document.querySelector(".humidity-image") as HTMLImageElement;
   if (
     !displayNameRef ||
     !displayTempRef ||
     !displayHumidityRef ||
     !displayFeelsLikeRef ||
-    !displayDescriptionRef ||
     !displayWindSpeedRef ||
-    !divWrapper
+    !divWrapper ||
+    !humidityImg
   ) {
     console.log("Något är fel med datan");
     return;
@@ -138,43 +134,65 @@ function displayWeatherData(): void {
 
   if (!searchedCity) {
     searchedLocation.textContent = "Please enter a city name";
-    console.log("Inget sökord angivet.");
     return;
   }
 
-  const savedFavorites = localStorage.getItem("savedWeatherData");
+  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
   const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+  const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
 
-  // Skapa stjärn-ikonen med `makeStar`
   const starImg: HTMLImageElement = makeStar(isFavorite, () => {
     toggleFavorite(weatherData);
-    // Uppdatera `isFilled` baserat på om staden är favorit
-    starImg.src = isFavorite ? "../dist/assets/star.svg" : "../dist/assets/starFilled.svg";
-    displayDataInMenu(); // Uppdatera menyn
+    if (!isFavorite) {
+      starImg.src = "../dist/assets/star.svg";
+    } else {
+      starImg.src = "../dist/assets/starFilled.svg";
+      displayDataInMenu();
+    }
   });
+
+  function checkWeatherImage(): void {
+    const weatherImage = document.createElement("img") as HTMLImageElement;
+    const iconCode = weatherData.weather[0].icon;
+    weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    weatherImage.alt = "Weather image";
+    weatherImage.classList.add("weather-image");
+
+    const weatherContainer = document.querySelector(".display-weather-container") as HTMLElement;
+    const tempContainer = document.querySelector(".temp-container") as HTMLElement;
+
+    if (weatherContainer && tempContainer) {
+      const existingImage = weatherContainer.querySelector(".weather-image");
+      if (existingImage) {
+        existingImage.remove();
+      }
+      weatherContainer.insertBefore(weatherImage, tempContainer);
+    }
+  }
 
   if (!weatherData) {
     searchedLocation.textContent = `No result found for "${searchedCity}"`;
-    console.log("Ingen väderdata är tillgänglig just nu.");
     return;
   } else {
-    const roundedTemp = Math.floor(weatherData.main.temp);
-    const roundedFeelsLike = Math.floor(weatherData.main.feels_like);
-    const roundedWindSpeed = Math.floor(weatherData.wind.speed);
+    checkWeatherImage();
+    const roundedTemp: number = Math.floor(weatherData.main.temp);
+    const roundedFeelsLike: number = Math.floor(weatherData.main.feels_like);
+    const roundedWindSpeed: number = Math.floor(weatherData.wind.speed);
 
     const starImg = document.createElement("img") as HTMLImageElement;
     starImg.src = "../dist/assets/star.svg";
     starImg.alt = "Star image";
     starImg.classList.add("star");
 
+    document.querySelector(".humidity-image")?.classList.remove("hide");
+    document.querySelector(".wind-image")?.classList.remove("hide");
+
     divWrapper.append(starImg);
     displayNameRef.textContent = weatherData.name;
     displayTempRef.textContent = `${roundedTemp}°C`;
-    displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
+    displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}`;
     displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
-    displayDescriptionRef.textContent = `${weatherData.weather[0].description}`;
-    displayWindSpeedRef.textContent = `Wind speed ${roundedWindSpeed} km/h`;
+    displayWindSpeedRef.textContent = `Wind ${roundedWindSpeed} km/h`;
 
     let isFilled: boolean = false;
 
@@ -201,17 +219,46 @@ function displayWeatherData(): void {
   }
 }
 
+function updateStarIcon(): void {
+  const divWrapper = document.querySelector(
+    ".display-weather-wrapper__name-and-star"
+  ) as HTMLDivElement;
+  const starImg = divWrapper.querySelector(".star") as HTMLImageElement;
+
+  if (!weatherData || !starImg) return; // Kontrollera att data och element finns
+
+  const savedFavorites = localStorage.getItem("savedWeatherData");
+  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+
+  if (isFavorite) {
+    starImg.src = "../dist/assets/starFilled.svg";
+  } else {
+    starImg.src = "../dist/assets/star.svg";
+  }
+}
+
 function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
   const starImg = document.createElement("img") as HTMLImageElement;
-  starImg.src = isFilled ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
-  starImg.alt = "Star image";
-  starImg.classList.add("star");
+  if (isFilled) {
+    starImg.src = "../dist/assets/starFilled.svg";
+    starImg.alt = "Star image";
+    starImg.classList.add("star");
+  } else {
+    starImg.src = "../dist/assets/star.svg";
+    starImg.alt = "Star image";
+    starImg.classList.add("star");
+  }
 
-  starImg.addEventListener("click", () => {
+  starImg.addEventListener("click", (): void => {
     onClick();
-    starImg.src = starImg.src.includes("starFilled.svg")
-      ? "../dist/assets/star.svg"
-      : "../dist/assets/starFilled.svg";
+    if (starImg.src.includes("starFilled.svg")) {
+      starImg.src = "../dist/assets/star.svg";
+      console.log("vanlig stjärna");
+    } else {
+      starImg.src = "../dist/assets/starFilled.svg";
+      console.log("fylld stjärna");
+    }
   });
 
   return starImg;
@@ -219,27 +266,25 @@ function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
 
 function displayDataInMenu(): void {
   const menuArticle = document.querySelector(".weather-article") as HTMLElement;
-  menuArticle.innerHTML = ""; // Rensa menyn
+  menuArticle.innerHTML = "";
 
   const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
   const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
 
   weatherArray.forEach((savedData) => {
-    const locationDiv = document.createElement("div");
+    const locationDiv: HTMLDivElement = document.createElement("div");
     locationDiv.classList.add("saved-location");
 
-    // Lägg till stadens namn
-    const cityText = document.createElement("span");
-    cityText.textContent = `${savedData.name}, ${Math.floor(savedData.main.temp)}°C, ${
-      savedData.weather[0].description
-    }`;
+    const cityText: HTMLSpanElement = document.createElement("span");
+    cityText.textContent = `${savedData.name}, ${Math.floor(
+      savedData.main.temp
+    )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
     locationDiv.appendChild(cityText);
 
-    const starImg = makeStar(true, () => {
+    const starImg: HTMLImageElement = makeStar(true, () => {
       toggleFavorite(savedData);
       displayDataInMenu();
     });
-
     locationDiv.appendChild(starImg);
     menuArticle.appendChild(locationDiv);
   });
@@ -249,7 +294,6 @@ function toggleFavorite(cityData: WeatherData): void {
   const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
   let weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
 
-  // Om staden redan är favorit, ta bort den, annars lägg till den
   if (weatherArray.some((data) => data.name === cityData.name)) {
     weatherArray = weatherArray.filter((data) => data.name !== cityData.name);
   } else {
@@ -257,6 +301,7 @@ function toggleFavorite(cityData: WeatherData): void {
   }
 
   localStorage.setItem("savedWeatherData", JSON.stringify(weatherArray));
+  updateStarIcon();
 }
 
 async function fetchWeather(e: Event): Promise<void> {
@@ -275,18 +320,19 @@ async function fetchWeather(e: Event): Promise<void> {
 
     if (!response.ok) {
       searchedCityText.textContent = `Can't find "${searchedCity}"`;
+      document.querySelector(".display-weather-container")?.classList.add("hide");
       throw new Error("Det här fungerar ju verkligen inte");
     } else {
       searchedCityText.textContent = "";
       const data = await response.json();
 
-      // weatherData = weatherDataHandler(data);
       weatherData = data;
+      console.log(weatherData);
       if (weatherData) {
         displayWeatherData();
+        updateStarIcon();
       } else {
         searchedCityText.textContent = `No valid data found for "${searchedCity}"`;
-        console.log("weatherDataHandler returned null or undefined");
       }
     }
   } catch (error) {

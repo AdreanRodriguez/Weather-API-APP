@@ -33,7 +33,7 @@ body {
 }
 
 .menu-heading {
-  margin-top: 3rem;
+  margin: 3rem 0;
   text-align: center;
   color: whitesmoke;
   font-family: "Courier New", Courier, monospace, sans-serif;
@@ -181,16 +181,15 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
-.display-weather__temp {
-  font-size: 36px;
-  font-weight: 600;
-  color: whitesmoke;
-  text-transform: uppercase;
-  font-family: "Courier New", Courier, monospace;
+.temp-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 
-.display-weather__humidity {
-  font-size: 16px;
+.display-weather__temp {
+  font-size: 60px;
+  font-weight: 600;
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
@@ -203,15 +202,35 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
-.display-weather__description {
-  font-size: 16px;
+.humidity-container {
+  display: flex;
+  align-items: center;
+}
+
+.display-weather__humidity {
+  font-size: 25px;
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
+  align-self: flex-end;
+}
+
+.humidity-image {
+  width: 40px;
+}
+
+.wind-image {
+  width: 50px;
+}
+
+.wind-desc-container {
+  display: flex;
+  align-items: center;
 }
 
 .display-weather__wind-speed {
-  font-size: 16px;
+  font-size: 26px;
+  margin-right: 1rem;
   color: whitesmoke;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
