@@ -9,11 +9,12 @@ function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
 
+const barRef = document.querySelector(".bar") as HTMLDivElement;
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
+const menuArticle = document.querySelector(".weather-article") as HTMLElement;
 const searchRefWhite = document.querySelector(".magnifying-glass-white") as HTMLImageElement;
 const searchRefBlack = document.querySelector(".magnifying-glass-black") as HTMLImageElement;
-
 inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
 inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
 
@@ -36,7 +37,6 @@ inputRef2.addEventListener("keypress", (e): void => {
   }
 });
 
-const barRef = document.querySelector(".bar") as HTMLDivElement;
 barRef.addEventListener("click", (): void => {});
 
 function hideElements(): void {
@@ -83,6 +83,8 @@ openMenu?.addEventListener("click", (): void => {
 
 const tempContainerRef = document.querySelector(".temp-container") as HTMLElement;
 tempContainerRef.classList.add("hide");
+
+displayDataInMenu();
 
 function displayWeatherData(): void {
   tempContainerRef.classList.remove("hide");
@@ -269,29 +271,33 @@ function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
 }
 
 function displayDataInMenu(): void {
-  const menuArticle = document.querySelector(".weather-article") as HTMLElement;
   menuArticle.innerHTML = "";
 
   const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
   const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const menuHeading = document.querySelector(".menu-heading") as HTMLHeadElement;
+  if (weatherArray.length === 0) {
+    menuHeading.textContent = "No favorites locations";
+  } else {
+    menuHeading.textContent = "Favorite weather locations";
+    weatherArray.forEach((savedData) => {
+      const locationDiv = document.createElement("div") as HTMLDivElement;
+      locationDiv.classList.add("saved-location");
 
-  weatherArray.forEach((savedData) => {
-    const locationDiv = document.createElement("div") as HTMLDivElement;
-    locationDiv.classList.add("saved-location");
+      const cityText = document.createElement("span") as HTMLSpanElement;
+      cityText.textContent = `${savedData.name}, ${Math.floor(
+        savedData.main.temp
+      )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
+      locationDiv.appendChild(cityText);
 
-    const cityText = document.createElement("span") as HTMLSpanElement;
-    cityText.textContent = `${savedData.name}, ${Math.floor(
-      savedData.main.temp
-    )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
-    locationDiv.appendChild(cityText);
-
-    const starImg = makeStar(true, () => {
-      toggleFavorite(savedData);
-      displayDataInMenu();
-    }) as HTMLImageElement;
-    locationDiv.appendChild(starImg);
-    menuArticle.appendChild(locationDiv);
-  });
+      const starImg = makeStar(true, () => {
+        toggleFavorite(savedData);
+        displayDataInMenu();
+      }) as HTMLImageElement;
+      locationDiv.appendChild(starImg);
+      menuArticle.appendChild(locationDiv);
+    });
+  }
 }
 
 function toggleFavorite(cityData: WeatherData): void {
@@ -318,6 +324,9 @@ async function fetchWeather(e: Event): Promise<void> {
   }
 
   try {
+    const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+    const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+
     const response: Response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`
     );
@@ -332,8 +341,14 @@ async function fetchWeather(e: Event): Promise<void> {
       console.log(weatherData);
 
       if (weatherData) {
-        localStorage.getItem("savedWeatherData");
         displayWeatherData();
+        displayDataInMenu();
+        const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
+        const starImg = document.querySelector(".star") as HTMLImageElement;
+
+        if (starImg) {
+          starImg.src = isFavorite ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
+        }
         updateStarIcon();
       } else {
         searchedCityText.textContent = `No valid data found for "${searchedCity}"`;

@@ -36,8 +36,10 @@ let isFilled = false;
 function updateCityInput(input) {
   searchedCity = input.value;
 }
+const barRef = document.querySelector(".bar");
 const inputRef1 = document.querySelector("#inputField1");
 const inputRef2 = document.querySelector("#inputField2");
+const menuArticle = document.querySelector(".weather-article");
 const searchRefWhite = document.querySelector(".magnifying-glass-white");
 const searchRefBlack = document.querySelector(".magnifying-glass-black");
 inputRef1 === null || inputRef1 === void 0
@@ -68,7 +70,6 @@ inputRef2.addEventListener("keypress", (e) => {
       : _a.classList.remove("hide");
   }
 });
-const barRef = document.querySelector(".bar");
 barRef.addEventListener("click", () => {});
 function hideElements() {
   var _a, _b, _c, _d;
@@ -150,6 +151,7 @@ openMenu === null || openMenu === void 0
     });
 const tempContainerRef = document.querySelector(".temp-container");
 tempContainerRef.classList.add("hide");
+displayDataInMenu();
 function displayWeatherData() {
   var _a, _b;
   tempContainerRef.classList.remove("hide");
@@ -307,25 +309,30 @@ function makeStar(isFilled, onClick) {
   return starImg;
 }
 function displayDataInMenu() {
-  const menuArticle = document.querySelector(".weather-article");
   menuArticle.innerHTML = "";
   const savedFavorites = localStorage.getItem("savedWeatherData");
   const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
-  weatherArray.forEach((savedData) => {
-    const locationDiv = document.createElement("div");
-    locationDiv.classList.add("saved-location");
-    const cityText = document.createElement("span");
-    cityText.textContent = `${savedData.name}, ${Math.floor(
-      savedData.main.temp
-    )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
-    locationDiv.appendChild(cityText);
-    const starImg = makeStar(true, () => {
-      toggleFavorite(savedData);
-      displayDataInMenu();
+  const menuHeading = document.querySelector(".menu-heading");
+  if (weatherArray.length === 0) {
+    menuHeading.textContent = "No favorites locations";
+  } else {
+    menuHeading.textContent = "Favorite weather locations";
+    weatherArray.forEach((savedData) => {
+      const locationDiv = document.createElement("div");
+      locationDiv.classList.add("saved-location");
+      const cityText = document.createElement("span");
+      cityText.textContent = `${savedData.name}, ${Math.floor(
+        savedData.main.temp
+      )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
+      locationDiv.appendChild(cityText);
+      const starImg = makeStar(true, () => {
+        toggleFavorite(savedData);
+        displayDataInMenu();
+      });
+      locationDiv.appendChild(starImg);
+      menuArticle.appendChild(locationDiv);
     });
-    locationDiv.appendChild(starImg);
-    menuArticle.appendChild(locationDiv);
-  });
+  }
 }
 function toggleFavorite(cityData) {
   const savedFavorites = localStorage.getItem("savedWeatherData");
@@ -348,6 +355,8 @@ function fetchWeather(e) {
       return;
     }
     try {
+      const savedFavorites = localStorage.getItem("savedWeatherData");
+      const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
       const response = yield fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`
       );
@@ -360,8 +369,13 @@ function fetchWeather(e) {
         weatherData = data;
         console.log(weatherData);
         if (weatherData) {
-          localStorage.getItem("savedWeatherData");
           displayWeatherData();
+          displayDataInMenu();
+          const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+          const starImg = document.querySelector(".star");
+          if (starImg) {
+            starImg.src = isFavorite ? "../dist/assets/starFilled.svg" : "../dist/assets/star.svg";
+          }
           updateStarIcon();
         } else {
           searchedCityText.textContent = `No valid data found for "${searchedCity}"`;
