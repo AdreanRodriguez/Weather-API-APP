@@ -154,9 +154,7 @@ function displayWeatherData(): void {
     }
   });
 
-  function checkWeatherImage(): void {
-    const weatherImage = document.createElement("img") as HTMLImageElement;
-    const iconCode = weatherData.weather[0].icon;
+  function updateBackground(iconCode: string): void {
     const body = document.querySelector("body") as HTMLElement;
     if (iconCode.includes("n")) {
       body.style.backgroundImage =
@@ -165,6 +163,12 @@ function displayWeatherData(): void {
       body.style.backgroundImage =
         "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
     }
+  }
+
+  function checkWeatherImage(): void {
+    const weatherImage = document.createElement("img") as HTMLImageElement;
+    const iconCode = weatherData.weather[0].icon;
+    updateBackground(iconCode);
     weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
     weatherImage.alt = "Weather image";
     weatherImage.classList.add("weather-image");
@@ -265,10 +269,8 @@ function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
     onClick();
     if (starImg.src.includes("starFilled.svg")) {
       starImg.src = "../dist/assets/star.svg";
-      console.log("vanlig stjärna");
     } else {
       starImg.src = "../dist/assets/starFilled.svg";
-      console.log("fylld stjärna");
     }
   });
 
@@ -337,7 +339,6 @@ async function fetchWeather(e: Event): Promise<void> {
       const data = await response.json();
 
       weatherData = data;
-      console.log(weatherData);
       if (weatherData) {
         displayWeatherData();
         updateStarIcon();

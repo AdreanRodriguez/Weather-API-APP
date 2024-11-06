@@ -118,9 +118,7 @@ function displayWeatherData() {
             displayDataInMenu();
         }
     });
-    function checkWeatherImage() {
-        const weatherImage = document.createElement("img");
-        const iconCode = weatherData.weather[0].icon;
+    function updateBackground(iconCode) {
         const body = document.querySelector("body");
         if (iconCode.includes("n")) {
             body.style.backgroundImage =
@@ -130,6 +128,11 @@ function displayWeatherData() {
             body.style.backgroundImage =
                 "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
         }
+    }
+    function checkWeatherImage() {
+        const weatherImage = document.createElement("img");
+        const iconCode = weatherData.weather[0].icon;
+        updateBackground(iconCode);
         weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
         weatherImage.alt = "Weather image";
         weatherImage.classList.add("weather-image");
@@ -216,11 +219,9 @@ function makeStar(isFilled, onClick) {
         onClick();
         if (starImg.src.includes("starFilled.svg")) {
             starImg.src = "../dist/assets/star.svg";
-            console.log("vanlig stjärna");
         }
         else {
             starImg.src = "../dist/assets/starFilled.svg";
-            console.log("fylld stjärna");
         }
     });
     return starImg;
@@ -275,7 +276,6 @@ function fetchWeather(e) {
                 searchedCityText.textContent = "";
                 const data = yield response.json();
                 weatherData = data;
-                console.log(weatherData);
                 if (weatherData) {
                     displayWeatherData();
                     updateStarIcon();
