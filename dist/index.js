@@ -36,9 +36,6 @@ let isFilled = false;
 function updateCityInput(input) {
   searchedCity = input.value;
 }
-const savedFavorites = localStorage.getItem("savedWeatherData");
-const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
-const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
 const inputRef1 = document.querySelector("#inputField1");
 const inputRef2 = document.querySelector("#inputField2");
 const searchRefWhite = document.querySelector(".magnifying-glass-white");
@@ -190,6 +187,9 @@ function displayWeatherData() {
     searchedLocation.textContent = "Please enter a city name";
     return;
   }
+  const savedFavorites = localStorage.getItem("savedWeatherData");
+  const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
   const starImg = makeStar(isFavorite, () => {
     toggleFavorite(weatherData);
     if (!isFavorite) {
@@ -211,8 +211,6 @@ function displayWeatherData() {
     starImg.src = "../dist/assets/star.svg";
     starImg.alt = "Star image";
     starImg.classList.add("star");
-    // document.querySelector(".humidity-image")?.classList.remove("hide");
-    // document.querySelector(".wind-image")?.classList.remove("hide");
     divWrapper.append(starImg);
     displayNameRef.textContent = weatherData.name;
     displayTempRef.textContent = `${roundedTemp}°C`;
@@ -257,6 +255,12 @@ function checkWeatherImage() {
   weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   weatherImage.alt = "Weather image";
   weatherImage.classList.add("weather-image");
+  // weatherImage.src.includes("01d")
+  if (iconCode === "01d") {
+    weatherImage.style.filter = "drop-shadow(0 0 0.75rem crimson)";
+  } else {
+    weatherImage.style.filter = "none";
+  }
   if (weatherContainer && tempContainer) {
     const existingImage = weatherContainer.querySelector(".weather-image");
     if (existingImage) {
@@ -268,6 +272,9 @@ function checkWeatherImage() {
 function updateStarIcon() {
   const divWrapper = document.querySelector(".display-weather-wrapper__name-and-star");
   const starImg = divWrapper.querySelector(".star");
+  const savedFavorites = localStorage.getItem("savedWeatherData");
+  const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
   if (!weatherData || !starImg) {
     return;
   }
@@ -351,7 +358,9 @@ function fetchWeather(e) {
         searchedCityText.textContent = "";
         const data = yield response.json();
         weatherData = data;
+        console.log(weatherData);
         if (weatherData) {
+          localStorage.getItem("savedWeatherData");
           displayWeatherData();
           updateStarIcon();
         } else {

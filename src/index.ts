@@ -9,10 +9,6 @@ function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
 
-const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
-const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
-
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
 const searchRefWhite = document.querySelector(".magnifying-glass-white") as HTMLImageElement;
@@ -131,6 +127,10 @@ function displayWeatherData(): void {
     return;
   }
 
+  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
+
   const starImg: HTMLImageElement = makeStar(isFavorite, () => {
     toggleFavorite(weatherData);
     if (!isFavorite) {
@@ -154,9 +154,6 @@ function displayWeatherData(): void {
     starImg.src = "../dist/assets/star.svg";
     starImg.alt = "Star image";
     starImg.classList.add("star");
-
-    // document.querySelector(".humidity-image")?.classList.remove("hide");
-    // document.querySelector(".wind-image")?.classList.remove("hide");
 
     divWrapper.append(starImg);
     displayNameRef.textContent = weatherData.name;
@@ -210,6 +207,12 @@ function checkWeatherImage(): void {
   weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   weatherImage.alt = "Weather image";
   weatherImage.classList.add("weather-image");
+  // weatherImage.src.includes("01d")
+  if (iconCode === "01d") {
+    weatherImage.style.filter = "drop-shadow(0 0 0.75rem crimson)";
+  } else {
+    weatherImage.style.filter = "none";
+  }
 
   if (weatherContainer && tempContainer) {
     const existingImage = weatherContainer.querySelector(".weather-image");
@@ -225,6 +228,9 @@ function updateStarIcon(): void {
     ".display-weather-wrapper__name-and-star"
   ) as HTMLDivElement;
   const starImg = divWrapper.querySelector(".star") as HTMLImageElement;
+  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+  const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
 
   if (!weatherData || !starImg) {
     return;
@@ -323,8 +329,10 @@ async function fetchWeather(e: Event): Promise<void> {
       searchedCityText.textContent = "";
       const data = await response.json();
       weatherData = data;
+      console.log(weatherData);
 
       if (weatherData) {
+        localStorage.getItem("savedWeatherData");
         displayWeatherData();
         updateStarIcon();
       } else {
