@@ -1,24 +1,24 @@
-// interface WeatherData {
-//   main: Main;
-//   wind: Wind;
-//   name: string;
-//   weather: Weather[];
-// }
+interface WeatherData {
+  main: Main;
+  wind: Wind;
+  name: string;
+  weather: Weather[];
+}
 
-// interface Main {
-//   temp: number;
-//   humidity: number;
-//   feels_like: number;
-// }
+interface Main {
+  temp: number;
+  humidity: number;
+  feels_like: number;
+}
 
-// interface Weather {
-//   main: string;
-//   description: string;
-// }
+interface Weather {
+  main: string;
+  icon: string;
+}
 
-// interface Wind {
-//   deg: number;
-//   speed: number;
-// }
+interface Wind {
+  deg: number;
+  speed: number;
+}
 
-// export { WeatherData };
+export { WeatherData };

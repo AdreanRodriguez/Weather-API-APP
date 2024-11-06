@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,6 +13,9 @@ let searchedCity = "";
 function updateCityInput(input) {
     searchedCity = input.value;
 }
+const savedFavorites = localStorage.getItem("savedWeatherData");
+const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
 const inputRef1 = document.querySelector("#inputField1");
 const inputRef2 = document.querySelector("#inputField2");
 const searchRefWhite = document.querySelector(".magnifying-glass-white");
@@ -105,9 +107,6 @@ function displayWeatherData() {
         searchedLocation.textContent = "Please enter a city name";
         return;
     }
-    const savedFavorites = localStorage.getItem("savedWeatherData");
-    const weatherArray = savedFavorites ? JSON.parse(savedFavorites) : [];
-    const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
     const starImg = makeStar(isFavorite, () => {
         toggleFavorite(weatherData);
         if (!isFavorite) {
@@ -118,34 +117,6 @@ function displayWeatherData() {
             displayDataInMenu();
         }
     });
-    function updateBackground(iconCode) {
-        const body = document.querySelector("body");
-        if (iconCode.includes("n")) {
-            body.style.backgroundImage =
-                "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
-        }
-        else if (iconCode.includes("d")) {
-            body.style.backgroundImage =
-                "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
-        }
-    }
-    function checkWeatherImage() {
-        const weatherImage = document.createElement("img");
-        const iconCode = weatherData.weather[0].icon;
-        updateBackground(iconCode);
-        weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-        weatherImage.alt = "Weather image";
-        weatherImage.classList.add("weather-image");
-        const weatherContainer = document.querySelector(".display-weather-container");
-        const tempContainer = document.querySelector(".temp-container");
-        if (weatherContainer && tempContainer) {
-            const existingImage = weatherContainer.querySelector(".weather-image");
-            if (existingImage) {
-                existingImage.remove();
-            }
-            weatherContainer.insertBefore(weatherImage, tempContainer);
-        }
-    }
     if (!weatherData) {
         searchedLocation.textContent = `No result found for "${searchedCity}"`;
         return;
@@ -188,6 +159,34 @@ function displayWeatherData() {
         });
     }
 }
+function updateBackground(iconCode) {
+    const body = document.querySelector("body");
+    if (iconCode.includes("n")) {
+        body.style.backgroundImage =
+            "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
+    }
+    else if (iconCode.includes("d")) {
+        body.style.backgroundImage =
+            "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
+    }
+}
+function checkWeatherImage() {
+    const weatherImage = document.createElement("img");
+    const iconCode = weatherData.weather[0].icon;
+    updateBackground(iconCode);
+    weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+    weatherImage.alt = "Weather image";
+    weatherImage.classList.add("weather-image");
+    const weatherContainer = document.querySelector(".display-weather-container");
+    const tempContainer = document.querySelector(".temp-container");
+    if (weatherContainer && tempContainer) {
+        const existingImage = weatherContainer.querySelector(".weather-image");
+        if (existingImage) {
+            existingImage.remove();
+        }
+        weatherContainer.insertBefore(weatherImage, tempContainer);
+    }
+}
 function updateStarIcon() {
     const divWrapper = document.querySelector(".display-weather-wrapper__name-and-star");
     const starImg = divWrapper.querySelector(".star");
@@ -217,12 +216,13 @@ function makeStar(isFilled, onClick) {
     }
     starImg.addEventListener("click", () => {
         onClick();
-        if (starImg.src.includes("starFilled.svg")) {
+        if (isFilled) {
             starImg.src = "../dist/assets/star.svg";
         }
         else {
             starImg.src = "../dist/assets/starFilled.svg";
         }
+        isFilled = !isFilled;
     });
     return starImg;
 }
@@ -276,6 +276,7 @@ function fetchWeather(e) {
                 searchedCityText.textContent = "";
                 const data = yield response.json();
                 weatherData = data;
+                console.log(weatherData);
                 if (weatherData) {
                     displayWeatherData();
                     updateStarIcon();
@@ -286,7 +287,8 @@ function fetchWeather(e) {
             }
         }
         catch (error) {
-            console.log("Nu blev det fel!", error);
+            console.error("Nu blev det fel!", error);
         }
     });
 }
+export {};

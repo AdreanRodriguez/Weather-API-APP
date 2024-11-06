@@ -32,15 +32,16 @@ body {
 
 .menu-heading {
   margin: 3rem 0;
+  font-size: 20px;
   text-align: center;
   color: whitesmoke;
-  font-size: 20px;
   font-family: "Courier New", Courier, monospace, sans-serif;
 }
 
 .menu-close {
   top: 5px;
   right: 15px;
+  cursor: pointer;
   font-size: 30px;
   position: absolute;
   color: whitesmoke;
@@ -48,10 +49,10 @@ body {
 }
 
 .weather-article {
-  color: whitesmoke;
-  font-family: sans-serif;
   display: flex;
+  color: whitesmoke;
   flex-direction: column;
+  font-family: sans-serif;
   justify-content: center;
 }
 
@@ -63,17 +64,17 @@ body {
 }
 
 .wrapper {
+  height: 100vh;
   margin: 0 auto;
   max-width: 800px;
   position: relative;
   padding: 1rem 0.5rem;
-  height: 100vh;
 }
 
 .weather-location-name {
-  justify-self: center;
   text-align: center;
   color: whitesmoke;
+  justify-self: center;
   font-family: "Courier New", Courier, monospace, sans-serif;
 }
 
@@ -97,6 +98,12 @@ body {
   justify-content: space-between;
 }
 
+.bar > hr {
+  height: 3px;
+  background-color: whitesmoke;
+  border: 1px solid rgb(0, 0, 0);
+}
+
 .search-input {
   width: 100%;
   margin: 0 auto;
@@ -112,7 +119,6 @@ body {
 .magnifying-glass-white {
   right: 13px;
   width: 30px;
-  opacity: 0.7;
   position: absolute;
 }
 
@@ -197,7 +203,6 @@ body {
 
 .humidity-wind-wrapper {
   display: flex;
-  flex-direction: row;
   margin-top: 2rem;
 }
 
@@ -215,18 +220,18 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+.wind-desc-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
 .humidity-image {
   width: 30px;
 }
 
 .wind-image {
   width: 30px;
-}
-
-.wind-desc-container {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
 }
 
 .display-weather__wind-speed {

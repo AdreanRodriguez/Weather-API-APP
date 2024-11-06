@@ -1,26 +1,4 @@
-// Glöm inte lägga in i interfaces
-interface WeatherData {
-  main: Main;
-  wind: Wind;
-  name: string;
-  weather: Weather[];
-}
-
-interface Main {
-  temp: number;
-  humidity: number;
-  feels_like: number;
-}
-
-interface Weather {
-  main: string;
-  icon: string;
-}
-
-interface Wind {
-  deg: number;
-  speed: number;
-}
+import { WeatherData } from "models/interfaces";
 
 const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
 let weatherData: WeatherData;
@@ -29,6 +7,10 @@ let searchedCity: string = "";
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
+
+const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
+const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
+const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
 
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
@@ -140,10 +122,6 @@ function displayWeatherData(): void {
     return;
   }
 
-  const savedFavorites: string | null = localStorage.getItem("savedWeatherData");
-  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-  const isFavorite: boolean = weatherArray.some((data) => data.name === weatherData.name);
-
   const starImg: HTMLImageElement = makeStar(isFavorite, () => {
     toggleFavorite(weatherData);
     if (!isFavorite) {
@@ -153,37 +131,6 @@ function displayWeatherData(): void {
       displayDataInMenu();
     }
   });
-
-  function updateBackground(iconCode: string): void {
-    const body = document.querySelector("body") as HTMLElement;
-    if (iconCode.includes("n")) {
-      body.style.backgroundImage =
-        "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
-    } else if (iconCode.includes("d")) {
-      body.style.backgroundImage =
-        "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
-    }
-  }
-
-  function checkWeatherImage(): void {
-    const weatherImage = document.createElement("img") as HTMLImageElement;
-    const iconCode = weatherData.weather[0].icon;
-    updateBackground(iconCode);
-    weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-    weatherImage.alt = "Weather image";
-    weatherImage.classList.add("weather-image");
-
-    const weatherContainer = document.querySelector(".display-weather-container") as HTMLElement;
-    const tempContainer = document.querySelector(".temp-container") as HTMLElement;
-
-    if (weatherContainer && tempContainer) {
-      const existingImage = weatherContainer.querySelector(".weather-image");
-      if (existingImage) {
-        existingImage.remove();
-      }
-      weatherContainer.insertBefore(weatherImage, tempContainer);
-    }
-  }
 
   if (!weatherData) {
     searchedLocation.textContent = `No result found for "${searchedCity}"`;
@@ -234,6 +181,37 @@ function displayWeatherData(): void {
   }
 }
 
+function updateBackground(iconCode: string): void {
+  const body = document.querySelector("body") as HTMLElement;
+  if (iconCode.includes("n")) {
+    body.style.backgroundImage =
+      "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
+  } else if (iconCode.includes("d")) {
+    body.style.backgroundImage =
+      "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
+  }
+}
+
+function checkWeatherImage(): void {
+  const weatherImage = document.createElement("img") as HTMLImageElement;
+  const iconCode = weatherData.weather[0].icon;
+  updateBackground(iconCode);
+  weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+  weatherImage.alt = "Weather image";
+  weatherImage.classList.add("weather-image");
+
+  const weatherContainer = document.querySelector(".display-weather-container") as HTMLElement;
+  const tempContainer = document.querySelector(".temp-container") as HTMLElement;
+
+  if (weatherContainer && tempContainer) {
+    const existingImage = weatherContainer.querySelector(".weather-image");
+    if (existingImage) {
+      existingImage.remove();
+    }
+    weatherContainer.insertBefore(weatherImage, tempContainer);
+  }
+}
+
 function updateStarIcon(): void {
   const divWrapper = document.querySelector(
     ".display-weather-wrapper__name-and-star"
@@ -267,11 +245,12 @@ function makeStar(isFilled: boolean, onClick: () => void): HTMLImageElement {
 
   starImg.addEventListener("click", (): void => {
     onClick();
-    if (starImg.src.includes("starFilled.svg")) {
+    if (isFilled) {
       starImg.src = "../dist/assets/star.svg";
     } else {
       starImg.src = "../dist/assets/starFilled.svg";
     }
+    isFilled = !isFilled;
   });
 
   return starImg;
@@ -285,19 +264,19 @@ function displayDataInMenu(): void {
   const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
 
   weatherArray.forEach((savedData) => {
-    const locationDiv: HTMLDivElement = document.createElement("div");
+    const locationDiv = document.createElement("div") as HTMLDivElement;
     locationDiv.classList.add("saved-location");
 
-    const cityText: HTMLSpanElement = document.createElement("span");
+    const cityText = document.createElement("span") as HTMLSpanElement;
     cityText.textContent = `${savedData.name}, ${Math.floor(
       savedData.main.temp
     )}°C, Wind speed ${Math.floor(savedData.wind.speed)} km/h`;
     locationDiv.appendChild(cityText);
 
-    const starImg: HTMLImageElement = makeStar(true, () => {
+    const starImg = makeStar(true, () => {
       toggleFavorite(savedData);
       displayDataInMenu();
-    });
+    }) as HTMLImageElement;
     locationDiv.appendChild(starImg);
     menuArticle.appendChild(locationDiv);
   });
@@ -337,8 +316,9 @@ async function fetchWeather(e: Event): Promise<void> {
     } else {
       searchedCityText.textContent = "";
       const data = await response.json();
-
       weatherData = data;
+      console.log(weatherData);
+
       if (weatherData) {
         displayWeatherData();
         updateStarIcon();
@@ -347,6 +327,6 @@ async function fetchWeather(e: Event): Promise<void> {
       }
     }
   } catch (error) {
-    console.log("Nu blev det fel!", error);
+    console.error("Nu blev det fel!", error);
   }
 }
