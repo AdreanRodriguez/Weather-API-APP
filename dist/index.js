@@ -11,12 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const ApiKey = "90b1153e7229ea734ad261381557d7c0";
 let weatherData;
 let searchedCity = "";
-// Funktion för att uppdatera searchedCity
 function updateCityInput(input) {
     searchedCity = input.value;
 }
 const inputRef1 = document.querySelector("#inputField1");
 const inputRef2 = document.querySelector("#inputField2");
+const searchRefWhite = document.querySelector(".magnifying-glass-white");
+const searchRefBlack = document.querySelector(".magnifying-glass-black");
 inputRef1 === null || inputRef1 === void 0 ? void 0 : inputRef1.addEventListener("input", () => updateCityInput(inputRef1));
 inputRef2 === null || inputRef2 === void 0 ? void 0 : inputRef2.addEventListener("input", () => updateCityInput(inputRef2));
 inputRef2.addEventListener("change", (e) => fetchWeather(e));
@@ -37,8 +38,6 @@ inputRef2.addEventListener("keypress", (e) => {
 });
 const barRef = document.querySelector(".bar");
 barRef.addEventListener("click", () => { });
-const searchRefWhite = document.querySelector(".magnifying-glass-white");
-const searchRefBlack = document.querySelector(".magnifying-glass-black");
 function hideElements() {
     var _a, _b, _c, _d;
     (_a = document.querySelector(".weather-logo")) === null || _a === void 0 ? void 0 : _a.classList.add("hide");
@@ -122,6 +121,15 @@ function displayWeatherData() {
     function checkWeatherImage() {
         const weatherImage = document.createElement("img");
         const iconCode = weatherData.weather[0].icon;
+        const body = document.querySelector("body");
+        if (iconCode.includes("n")) {
+            body.style.backgroundImage =
+                "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
+        }
+        else if (iconCode.includes("d")) {
+            body.style.backgroundImage =
+                "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
+        }
         weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
         weatherImage.alt = "Weather image";
         weatherImage.classList.add("weather-image");
@@ -153,7 +161,7 @@ function displayWeatherData() {
         divWrapper.append(starImg);
         displayNameRef.textContent = weatherData.name;
         displayTempRef.textContent = `${roundedTemp}°C`;
-        displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}`;
+        displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
         displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
         displayWindSpeedRef.textContent = `Wind ${roundedWindSpeed} km/h`;
         let isFilled = false;
@@ -250,8 +258,8 @@ function toggleFavorite(cityData) {
 }
 function fetchWeather(e) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         e.preventDefault();
+        hideElements();
         const searchedCityText = document.querySelector(".weather-location-name");
         if (!searchedCity) {
             searchedCityText.textContent = "Please enter a city name";
@@ -261,7 +269,6 @@ function fetchWeather(e) {
             const response = yield fetch(`https://api.openweathermap.org/data/2.5/weather?q=${searchedCity}&appid=${ApiKey}&units=metric`);
             if (!response.ok) {
                 searchedCityText.textContent = `Can't find "${searchedCity}"`;
-                (_a = document.querySelector(".display-weather-container")) === null || _a === void 0 ? void 0 : _a.classList.add("hide");
                 throw new Error("Det här fungerar ju verkligen inte");
             }
             else {

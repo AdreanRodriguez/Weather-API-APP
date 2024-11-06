@@ -26,18 +26,20 @@ const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
 let weatherData: WeatherData;
 let searchedCity: string = "";
 
-// Funktion för att uppdatera searchedCity
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
 }
+
 const inputRef1 = document.querySelector("#inputField1") as HTMLInputElement;
 const inputRef2 = document.querySelector("#inputField2") as HTMLInputElement;
+const searchRefWhite = document.querySelector(".magnifying-glass-white") as HTMLImageElement;
+const searchRefBlack = document.querySelector(".magnifying-glass-black") as HTMLImageElement;
 
 inputRef1?.addEventListener("input", () => updateCityInput(inputRef1));
 inputRef2?.addEventListener("input", () => updateCityInput(inputRef2));
 
-inputRef2.addEventListener("change", (e) => fetchWeather(e));
-inputRef1.addEventListener("keypress", (e): void => {
+inputRef2.addEventListener("change", (e: Event) => fetchWeather(e));
+inputRef1.addEventListener("keypress", (e: KeyboardEvent): void => {
   if (e.key === "Enter") {
     hideElements();
     fetchWeather(e);
@@ -56,9 +58,6 @@ inputRef2.addEventListener("keypress", (e): void => {
 
 const barRef = document.querySelector(".bar") as HTMLDivElement;
 barRef.addEventListener("click", (): void => {});
-
-const searchRefWhite = document.querySelector(".magnifying-glass-white") as HTMLImageElement;
-const searchRefBlack = document.querySelector(".magnifying-glass-black") as HTMLImageElement;
 
 function hideElements(): void {
   document.querySelector(".weather-logo")?.classList.add("hide");
@@ -158,6 +157,14 @@ function displayWeatherData(): void {
   function checkWeatherImage(): void {
     const weatherImage = document.createElement("img") as HTMLImageElement;
     const iconCode = weatherData.weather[0].icon;
+    const body = document.querySelector("body") as HTMLElement;
+    if (iconCode.includes("n")) {
+      body.style.backgroundImage =
+        "linear-gradient(180deg, rgba(15, 32, 39, 1) 0%, rgba(32, 58, 67, 1) 50%, rgba(44, 83, 100, 1) 100%)";
+    } else if (iconCode.includes("d")) {
+      body.style.backgroundImage =
+        "linear-gradient(180deg, rgba(68, 193, 255, 1) 50%, rgba(255, 255, 255, 1) 100%)";
+    }
     weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
     weatherImage.alt = "Weather image";
     weatherImage.classList.add("weather-image");
@@ -194,7 +201,7 @@ function displayWeatherData(): void {
     divWrapper.append(starImg);
     displayNameRef.textContent = weatherData.name;
     displayTempRef.textContent = `${roundedTemp}°C`;
-    displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}`;
+    displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
     displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
     displayWindSpeedRef.textContent = `Wind ${roundedWindSpeed} km/h`;
 
@@ -310,6 +317,7 @@ function toggleFavorite(cityData: WeatherData): void {
 
 async function fetchWeather(e: Event): Promise<void> {
   e.preventDefault();
+  hideElements();
   const searchedCityText = document.querySelector(".weather-location-name") as HTMLParagraphElement;
   if (!searchedCity) {
     searchedCityText.textContent = "Please enter a city name";
@@ -323,7 +331,6 @@ async function fetchWeather(e: Event): Promise<void> {
 
     if (!response.ok) {
       searchedCityText.textContent = `Can't find "${searchedCity}"`;
-      document.querySelector(".display-weather-container")?.classList.add("hide");
       throw new Error("Det här fungerar ju verkligen inte");
     } else {
       searchedCityText.textContent = "";
