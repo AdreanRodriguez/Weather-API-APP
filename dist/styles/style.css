@@ -100,8 +100,8 @@ body {
 
 .bar > hr {
   height: 3px;
+  border-radius: 10px;
   background-color: whitesmoke;
-  border: 1px solid rgb(0, 0, 0);
 }
 
 .search-input {
@@ -143,14 +143,15 @@ body {
 .weather-heading {
   font-size: 28px;
   margin-top: 1rem;
-  color: whitesmoke;
+  color: #fe7408;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
 }
 
 .weather-slogan {
   font-size: 16px;
-  color: whitesmoke;
+  color: #fea023;
+  font-weight: 700;
   text-transform: uppercase;
   font-family: "Courier New", Courier, monospace;
 }

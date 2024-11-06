@@ -3,6 +3,7 @@ import { WeatherData } from "models/interfaces";
 const ApiKey: string = "90b1153e7229ea734ad261381557d7c0";
 let weatherData: WeatherData;
 let searchedCity: string = "";
+let isFilled: boolean = false;
 
 function updateCityInput(input: HTMLInputElement): void {
   searchedCity = input.value;
@@ -35,6 +36,7 @@ inputRef2.addEventListener("keypress", (e): void => {
   if (e.key === "Enter") {
     hideElements();
     fetchWeather(e);
+    document.querySelector(".display-weather-container")?.classList.remove("hide");
   }
 });
 
@@ -50,17 +52,22 @@ function hideElements(): void {
 
 searchRefWhite?.addEventListener("click", (): void => {
   hideElements();
-  searchRefBlack?.classList.remove("hide");
-  inputRef1?.classList.remove("hide");
   searchRefWhite.classList.add("hide");
+
+  inputRef1?.classList.remove("hide");
+  searchRefBlack?.classList.remove("hide");
+  document.querySelector(".display-weather-container")?.classList.remove("hide");
 });
 
 searchRefBlack?.addEventListener("click", (): void => {
-  searchRefBlack?.classList.add("hide");
   inputRef1?.classList.add("hide");
+  searchRefBlack?.classList.add("hide");
+  document.querySelector(".display-weather-container")?.classList.add("hide");
+  inputRef2.innerHTML = "";
+
   document.querySelector(".weather-logo")?.classList.remove("hide");
-  document.querySelector(".weather-heading")?.classList.remove("hide");
   document.querySelector(".weather-slogan")?.classList.remove("hide");
+  document.querySelector(".weather-heading")?.classList.remove("hide");
   document.querySelector("#inputField2")?.classList.remove("hide");
   searchRefWhite.classList.remove("hide");
 });
@@ -83,6 +90,8 @@ tempContainerRef.classList.add("hide");
 
 function displayWeatherData(): void {
   tempContainerRef.classList.remove("hide");
+  document.querySelector(".wind-image")?.classList.remove("hide");
+  document.querySelector(".humidity-image")?.classList.remove("hide");
   const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
   const displayNameRef = document.querySelector(".display-weather__name") as HTMLElement;
   const displayTempRef = document.querySelector(".display-weather__temp") as HTMLElement;
@@ -146,8 +155,8 @@ function displayWeatherData(): void {
     starImg.alt = "Star image";
     starImg.classList.add("star");
 
-    document.querySelector(".humidity-image")?.classList.remove("hide");
-    document.querySelector(".wind-image")?.classList.remove("hide");
+    // document.querySelector(".humidity-image")?.classList.remove("hide");
+    // document.querySelector(".wind-image")?.classList.remove("hide");
 
     divWrapper.append(starImg);
     displayNameRef.textContent = weatherData.name;
@@ -155,8 +164,6 @@ function displayWeatherData(): void {
     displayHumidityRef.textContent = `Humidity ${weatherData.main.humidity}%`;
     displayFeelsLikeRef.textContent = `Feels like ${roundedFeelsLike}°C`;
     displayWindSpeedRef.textContent = `Wind ${roundedWindSpeed} km/h`;
-
-    let isFilled: boolean = false;
 
     starImg.addEventListener("click", (): void => {
       const savedWeatherData = localStorage.getItem("savedWeatherData");
@@ -194,14 +201,15 @@ function updateBackground(iconCode: string): void {
 
 function checkWeatherImage(): void {
   const weatherImage = document.createElement("img") as HTMLImageElement;
-  const iconCode = weatherData.weather[0].icon;
+  const tempContainer = document.querySelector(".temp-container") as HTMLElement;
+  const weatherContainer = document.querySelector(".display-weather-container") as HTMLElement;
+
+  const iconCode: string = weatherData.weather[0].icon;
+
   updateBackground(iconCode);
   weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   weatherImage.alt = "Weather image";
   weatherImage.classList.add("weather-image");
-
-  const weatherContainer = document.querySelector(".display-weather-container") as HTMLElement;
-  const tempContainer = document.querySelector(".temp-container") as HTMLElement;
 
   if (weatherContainer && tempContainer) {
     const existingImage = weatherContainer.querySelector(".weather-image");
@@ -218,11 +226,9 @@ function updateStarIcon(): void {
   ) as HTMLDivElement;
   const starImg = divWrapper.querySelector(".star") as HTMLImageElement;
 
-  if (!weatherData || !starImg) return; // Kontrollera att data och element finns
-
-  const savedFavorites = localStorage.getItem("savedWeatherData");
-  const weatherArray: WeatherData[] = savedFavorites ? JSON.parse(savedFavorites) : [];
-  const isFavorite = weatherArray.some((data) => data.name === weatherData.name);
+  if (!weatherData || !starImg) {
+    return;
+  }
 
   if (isFavorite) {
     starImg.src = "../dist/assets/starFilled.svg";
@@ -317,7 +323,6 @@ async function fetchWeather(e: Event): Promise<void> {
       searchedCityText.textContent = "";
       const data = await response.json();
       weatherData = data;
-      console.log(weatherData);
 
       if (weatherData) {
         displayWeatherData();
