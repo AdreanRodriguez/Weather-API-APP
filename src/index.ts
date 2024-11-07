@@ -61,7 +61,8 @@ searchRefBlack?.addEventListener("click", (): void => {
   inputRef1?.classList.add("hide");
   searchRefBlack?.classList.add("hide");
   document.querySelector(".display-weather-container")?.classList.add("hide");
-
+  const searchedLocation = document.querySelector(".weather-location-name") as HTMLParagraphElement;
+  searchedLocation.textContent = "";
   inputRef2.textContent = "";
 
   document.querySelector(".weather-logo")?.classList.remove("hide");

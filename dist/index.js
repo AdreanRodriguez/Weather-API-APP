@@ -113,6 +113,8 @@ searchRefBlack === null || searchRefBlack === void 0
       (_a = document.querySelector(".display-weather-container")) === null || _a === void 0
         ? void 0
         : _a.classList.add("hide");
+      const searchedLocation = document.querySelector(".weather-location-name");
+      searchedLocation.textContent = "";
       inputRef2.textContent = "";
       (_b = document.querySelector(".weather-logo")) === null || _b === void 0
         ? void 0
