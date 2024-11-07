@@ -370,7 +370,6 @@ function fetchWeather(e) {
         searchedCityText.textContent = "";
         const data = yield response.json();
         weatherData = data;
-        console.log(weatherData);
         if (weatherData) {
           displayWeatherData();
           displayDataInMenu();

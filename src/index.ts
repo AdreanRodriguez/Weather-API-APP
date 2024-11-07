@@ -341,7 +341,6 @@ async function fetchWeather(e: Event): Promise<void> {
       searchedCityText.textContent = "";
       const data = await response.json();
       weatherData = data;
-      console.log(weatherData);
 
       if (weatherData) {
         displayWeatherData();
