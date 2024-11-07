@@ -26,6 +26,7 @@ inputRef1.addEventListener("keypress", (e: KeyboardEvent): void => {
     inputRef1.classList.add("hide");
     searchRefBlack?.classList.add("hide");
     searchRefWhite.classList.remove("hide");
+    inputRef1.value = "";
   }
 });
 
@@ -34,6 +35,7 @@ inputRef2.addEventListener("keypress", (e): void => {
     hideElements();
     fetchWeather(e);
     document.querySelector(".display-weather-container")?.classList.remove("hide");
+    inputRef2.value = "";
   }
 });
 
@@ -59,7 +61,8 @@ searchRefBlack?.addEventListener("click", (): void => {
   inputRef1?.classList.add("hide");
   searchRefBlack?.classList.add("hide");
   document.querySelector(".display-weather-container")?.classList.add("hide");
-  inputRef2.innerHTML = "";
+
+  inputRef2.textContent = "";
 
   document.querySelector(".weather-logo")?.classList.remove("hide");
   document.querySelector(".weather-slogan")?.classList.remove("hide");

@@ -87,6 +87,8 @@ body {
 }
 
 .weather-location-name {
+  color: red;
+  font-weight: 700;
   margin-top: 1rem;
 }
 
