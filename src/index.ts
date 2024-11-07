@@ -213,7 +213,6 @@ function checkWeatherImage(): void {
   weatherImage.src = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   weatherImage.alt = "Weather image";
   weatherImage.classList.add("weather-image");
-  // weatherImage.src.includes("01d")
   if (iconCode === "01d") {
     weatherImage.style.filter = "drop-shadow(0 0 0.75rem crimson)";
   } else {
