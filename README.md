@@ -1,2 +1,33 @@
-# Wheater-API-APP
+
+# 🌤️ Weather App
 ![bild](https://github.com/user-attachments/assets/43b8fcec-a541-40a4-b51d-412bb4210db9)
+
+En stilren väderapplikation byggd i TypeScript och JavaScript som hämtar aktuell väderdata från **OpenWeatherMap API**. Användare kan söka efter städer, se aktuell temperatur, vindhastighet, luftfuktighet, och spara favoritplatser.
+
+## 🚀 Funktioner
+
+- 🔍 Sök på städer och visa väderinformation
+- ⭐ Lägg till eller ta bort favoritplatser (lagras i `localStorage`)
+- 🌡️ Visar temperatur, "feels like", vindhastighet och luftfuktighet
+- 🌅 Anpassar bakgrund efter dag/natt (baserat på väderikon)
+- 🧊 Dynamiska väderikoner direkt från OpenWeather
+- 📱 Enkel och responsiv layout
+- 💾 Favoriter sparas mellan sessioner
+
+## 🧰 Teknologier
+
+- TypeScript
+- Vanilla JavaScript
+- HTML & CSS
+- [OpenWeatherMap API](https://openweathermap.org/api)
+- LocalStorage
+
+VITE_OPENWEATHER_API_KEY
+
+Din personliga nyckel från OpenWeatherMap.
+
+OBS: Nyckeln exponeras i klient‑koden. För publika projekt kan du behöva proxy/end‑point för att dölja den.
+
+
+Alla förbättringar uppskattas – kod, buggrapporter, dokumentation, designidéer!
+
