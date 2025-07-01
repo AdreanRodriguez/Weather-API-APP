@@ -22,12 +22,5 @@ En stilren väderapplikation byggd i TypeScript och JavaScript som hämtar aktue
 - [OpenWeatherMap API](https://openweathermap.org/api)
 - LocalStorage
 
-VITE_OPENWEATHER_API_KEY
-
-Din personliga nyckel från OpenWeatherMap.
-
-OBS: Nyckeln exponeras i klient‑koden. För publika projekt kan du behöva proxy/end‑point för att dölja den.
-
-
 Alla förbättringar uppskattas – kod, buggrapporter, dokumentation, designidéer!
 
