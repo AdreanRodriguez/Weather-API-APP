@@ -2,7 +2,7 @@
 # 🌤️ Weather App
 ![bild](https://github.com/user-attachments/assets/43b8fcec-a541-40a4-b51d-412bb4210db9)
 
-En stilren väderapplikation byggd i TypeScript och JavaScript som hämtar aktuell väderdata från **OpenWeatherMap API**. Användare kan söka efter städer, se aktuell temperatur, vindhastighet, luftfuktighet, och spara favoritplatser.
+En stilren väderapplikation för mobila enheter byggd i TypeScript och JavaScript som hämtar aktuell väderdata från **OpenWeatherMap API**. Användare kan söka efter städer, se aktuell temperatur, vindhastighet, luftfuktighet, och spara favoritplatser.
 
 ## 🚀 Funktioner
 
